@@ -4,6 +4,7 @@ from sqlite3 import connect as cn
 from hashlib import sha256 as hsh
 from time import sleep
 from threading import Thread
+import sys
 
 
 app = Flask(__name__)
@@ -191,6 +192,11 @@ def removetoken(token):
 @app.route('/game_status')
 def status():
     return '"Working"'
+
+
+@app.route('/off')
+def off():
+    sys.exit()
 
 
 def committer():
