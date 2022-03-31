@@ -217,4 +217,4 @@ if __name__ == '__main__':
     cmt = Thread(target=committer)
     cmt.setDaemon(True)
     cmt.start()
-    app.run(host='196.168.1.69')
+    app.run()
