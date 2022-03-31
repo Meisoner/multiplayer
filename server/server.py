@@ -143,9 +143,30 @@ def removeblock(token, ax, ay):
     user = get_user(token)
     if not user:
         return jf(['err', 'Токен не найден.'])
+    userid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{user}"').fetchone()[0]
     if y == 0:
         return jf(['err', 'Невозможно уничтожить нижнюю границу мира.'])
+    item = cr.execute(f'SELECT block FROM Map WHERE x = {x} AND y = {y}').fetchone()[0]
     cr.execute(f'DELETE FROM Map WHERE x = {x} AND y = {y}')
+    invslot = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item} AND userid = {userid}').fetchone()
+    if not invslot:
+        invslot = cr.execute(f'SELECT Slot From Inventories WHERE amount = 0 AND userid = {userid}').fetchone()
+    cr.execute(f'''UPDATE Inventories SET amount = amount + 1, item = {item}
+               WHERE slot = {invslot[0]} AND userid = {userid}''')
+    return jf(['ok'])
+
+
+@app.route('/place/<token>/<int:blid>/<ax>/<ay>')
+def addblock(token, blid, ax, ay):
+    cr = db.cursor()
+    try:
+        x, y = int(ax), int(ay)
+    except Exception:
+        return jf(['err', 'Недопустимое значение.'])
+    user = get_user(token)
+    if not user:
+        return jf(['err', 'Токен не найден.'])
+    cr.execute(f'INSERT INTO Map(block, x, y) VALUES({blid}, {x}, {y})')
     return jf(['ok'])
 
 

@@ -255,6 +255,11 @@ while run:
             elif i.type == pg.MOUSEBUTTONDOWN:
                 if i.button == pg.BUTTON_LEFT:
                     blocks.update((i.pos[0], i.pos[1], broken, partlist), False)
+                elif i.button == pg.BUTTON_RIGHT:
+                    scrx, scry = i.pos
+                    bx = (scrx + int(delta[0])) // 50 - 15 + pos[0]
+                    by = (size[1] - scry - int(delta[1])) // 50 + pos[1] - 6
+                    Block(blocks, delta, textures[0], pos, (bx, by), False)
             elif i.type == pg.KEYDOWN:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = True
