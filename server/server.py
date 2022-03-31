@@ -4,7 +4,7 @@ from sqlite3 import connect as cn
 from hashlib import sha256 as hsh
 from time import sleep
 from threading import Thread
-import sys
+import os
 
 
 app = Flask(__name__)
@@ -196,7 +196,7 @@ def status():
 
 @app.route('/off')
 def off():
-    sys.exit()
+    os._exit(0)
 
 
 def committer():
