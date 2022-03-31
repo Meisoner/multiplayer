@@ -149,7 +149,8 @@ def removeblock(token, ax, ay):
         return jf(['err', 'Невозможно уничтожить нижнюю границу мира.'])
     item = cr.execute(f'SELECT block FROM Map WHERE x = {x} AND y = {y}').fetchone()[0]
     cr.execute(f'DELETE FROM Map WHERE x = {x} AND y = {y}')
-    invslot = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item} AND userid = {userid}').fetchone()
+    query = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item} AND userid = {userid} AND amount > 0')
+    invslot = query.fetchone()
     if not invslot:
         invslot = cr.execute(f'SELECT Slot From Inventories WHERE amount = 0 AND userid = {userid}').fetchone()
     cr.execute(f'''UPDATE Inventories SET amount = amount + 1, item = {item}
@@ -167,8 +168,14 @@ def addblock(token, blid, ax, ay):
     user = get_user(token)
     if not user:
         return jf(['err', 'Токен не найден.'])
-    cr.execute(f'INSERT INTO Map(block, x, y) VALUES({blid}, {x}, {y})')
-    return jf(['ok'])
+    userid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{user}"').fetchone()[0]
+    check = cr.execute(f'SELECT slot FROM Inventories WHERE userid = ? AND amount > 0 AND item = ?',
+                       (userid, blid)).fetchone()
+    if check:
+        cr.execute(f'UPDATE Inventories SET amount = amount - 1 WHERE slot = {check[0]}')
+        cr.execute(f'INSERT INTO Map(block, x, y) VALUES({blid}, {x}, {y})')
+        return jf(['ok'])
+    return jf(['err', 'В инвентаре игрока нет этого блока.'])
 
 
 @app.route('/get_inv/<token>')
@@ -210,4 +217,4 @@ if __name__ == '__main__':
     cmt = Thread(target=committer)
     cmt.setDaemon(True)
     cmt.start()
-    app.run()
+    app.run(host='196.168.1.69')
