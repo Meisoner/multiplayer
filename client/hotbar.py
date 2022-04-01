@@ -41,3 +41,6 @@ class Cell(pg.sprite.Sprite):
         self.update_image()
         if self.itemid:
             self.placeitem(self.itemid - 1, self.amount)
+
+    def getamount(self):
+        return self.amount

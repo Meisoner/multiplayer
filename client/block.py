@@ -5,7 +5,7 @@ HEIGHT = 800
 
 
 class Block(pg.sprite.Sprite):
-    def __init__(self, group, delta, image, playerpos, blockpos, protected):
+    def __init__(self, group, delta, image, playerpos, blockpos, protected, id):
         super().__init__(group)
         self.image = image
         self.dx, self.dy = 0, 0
@@ -14,6 +14,7 @@ class Block(pg.sprite.Sprite):
         self.rect.y = HEIGHT - (blockpos[1] - playerpos[1] + 7) * 50 - int(delta[1])
         self.coords = tuple(blockpos)
         self.unbreakable = protected
+        self.id = id
 
     def update(self, click, move):
         try:
@@ -21,9 +22,10 @@ class Block(pg.sprite.Sprite):
                 x, y = click[:2]
                 if self.rect.x <= x <= self.rect.x + 49 and self.rect.y <= y <= self.rect.y + 49:
                     self.remove(self.groups()[0])
-                    toremove, topart = click[2:]
+                    toremove, topart, last = click[2:]
                     toremove += [self.coords]
                     topart += [(self.rect.x, self.rect.y, pg.transform.average_color(self.image)[:3])]
+                    last += [self.id]
             if move:
                 self.dx += move[0]
                 self.dy -= move[1]

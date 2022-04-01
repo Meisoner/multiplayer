@@ -7,9 +7,11 @@ from player import Player
 from detectors import FallDetector, JumpDetector, RightDetector, LeftDetector, FallLeftDetector, FallRightDetector
 from particles import Particle
 from hotbar import Cell
+from utils import searchinv
 
 
-SERVER = 'http://127.0.0.1:5000/'
+# SERVER = 'http://127.0.0.1:5000/'
+SERVER = 'http://192.168.1.69:5000/'
 sss = rq.Session()
 
 
@@ -89,7 +91,7 @@ def noserver(screen):
 
 
 def blockdataexchanger():
-    global blocks, pos, sss, token, delta, broken
+    global blocks, pos, sss, token, delta, broken, placed, stop
     while True:
         sleep(1)
         map = sss.get(SERVER + 'get_blocks/' + token).json()
@@ -98,30 +100,41 @@ def blockdataexchanger():
         new = pg.sprite.Group()
         for i in broken:
             sss.get(SERVER + f'break/{token}/{i[0]}/{i[1]}')
+        for i in placed:
+            sss.get(SERVER + f'place/{token}/{i[0]}/{i[1]}/{i[2]}')
         dbackup = delta[:]
+        for i in placed:
+            Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), False, i[0])
         for i in map[0]:
             if (i[1], i[2]) in broken:
                 continue
-            Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), False)
+            Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), False, i[0])
         for i in map[1]:
-            Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), True)
+            Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), True, i[0])
         broken.clear()
+        placed.clear()
+        stop = True
         blocks = new
+        stop = False
 
 
 def playerdataexchanger():
-    global pos, inventory, sss, token, delta, others, hotlist
+    global pos, sss, token, others
     while True:
         sleep(1)
         sss.get(SERVER + f'update_pos/{token}/{pos[0]}/{pos[1]}')
-        newinv = sss.get(SERVER + f'get_inv/{token}').json()
-        if newinv != inventory:
-            inventory = newinv
-            for i in range(5):
-                if inventory[i][1]:
-                    hotlist[i].placeitem(inventory[i][0], inventory[i][1])
-                else:
-                    hotlist[i].rmitem()
+
+
+def update_inv():
+    global token, inventory
+    newinv = sss.get(SERVER + f'get_inv/{token}').json()
+    if newinv != inventory:
+        inventory = newinv
+        for i in range(5):
+            if inventory[i][1]:
+                hotlist[i].placeitem(inventory[i][0], inventory[i][1])
+            else:
+                hotlist[i].rmitem()
 
 
 pg.init()
@@ -169,11 +182,13 @@ falld, jumpd, rightd, leftd = FallDetector(), JumpDetector(), RightDetector(), L
 frd, fld = FallRightDetector(), FallLeftDetector()
 falling, jumping = False, 0
 usk = 5
-broken = []
+broken, placed = [], []
+last = []
 particles, partlist = pg.sprite.Group(), []
 mpos = (0, 0)
 others = []
-inventory = [0] * 20
+inventory = [[0, 0] for _ in range(20)]
+stop = False
 while run:
     try:
         tick = clock.tick()
@@ -185,11 +200,12 @@ while run:
                 pos = sss.get(SERVER + 'get_pos/' + token).json()
                 map[0] += [[num, pos[0], pos[1] - 1]]
                 for i in map[0]:
-                    Block(blocks, delta, textures[i[0]], pos, (i[1], i[2]), False)
+                    Block(blocks, delta, textures[i[0]], pos, (i[1], i[2]), False, i[0])
                 for i in map[1]:
-                    Block(blocks, delta, textures[i[0]], pos, (i[1], i[2]), True)
+                    Block(blocks, delta, textures[i[0]], pos, (i[1], i[2]), True, i[0])
                 bdats.start()
                 pdats.start()
+                update_inv()
         elif place == 'noserver':
             noserver(scr)
         else:
@@ -200,7 +216,7 @@ while run:
             if pg.sprite.spritecollideany(falld, blocks):
                 falling = False
                 usk = 5
-            elif not jumping:
+            elif not (jumping or stop):
                 falling = True
             if falling:
                 particles.update(0, False, 0, tick / usk)
@@ -254,17 +270,30 @@ while run:
                 run = False
             elif i.type == pg.MOUSEBUTTONDOWN:
                 if i.button == pg.BUTTON_LEFT:
-                    blocks.update((i.pos[0], i.pos[1], broken, partlist), False)
+                    blocks.update((i.pos[0], i.pos[1], broken, partlist, last), False)
+                    if last:
+                        slot = searchinv(inventory, last[0])
+                        if slot != -1:
+                            hotlist[slot].placeitem(last[0], hotlist[slot].getamount() + 1)
+                            inventory[slot][0] = last[0]
+                            inventory[slot][1] += 1
+                        last = []
                 elif i.button == pg.BUTTON_RIGHT:
-                    scrx, scry = i.pos
-                    bx = (scrx + int(delta[0])) // 50 - 15 + pos[0]
-                    by = (size[1] - scry - int(delta[1])) // 50 + pos[1] - 6
-                    Block(blocks, delta, textures[0], pos, (bx, by), False)
+                    if inventory[hand][1] and not ((i.pos[0] // 50, i.pos[1] // 50) == (15, 9) or falling or jumping):
+                        scrx, scry = i.pos
+                        bx = (scrx + int(delta[0])) // 50 - 15 + pos[0]
+                        by = (size[1] - scry - int(delta[1])) // 50 + pos[1] - 6
+                        block = inventory[hand][0]
+                        Block(blocks, delta, textures[block], pos, (bx, by), False, block)
+                        placed += [[block, bx, by]]
+                        # update_inv()
             elif i.type == pg.KEYDOWN:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = True
+                    player_spr.turn(True)
                 elif i.key == pg.K_LEFT or i.key == pg.K_a:
                     left = True
+                    player_spr.turn(False)
                 elif i.key == pg.K_SPACE and not (falling or jumping):
                     jumping = 60
                 elif (i.key == pg.K_UP or i.key == pg.K_w) and hand < 4:

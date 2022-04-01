@@ -2,11 +2,16 @@ import pygame as pg
 
 
 class Player(pg.sprite.Sprite):
-    plimg = pg.Surface((50, 50), pg.SRCALPHA)
-    pg.draw.ellipse(plimg, (255, 255, 150), (0, 0, 50, 50))
+    plimg = pg.image.load('textures/ninja.png')
 
     def __init__(self, group):
         super().__init__(group)
-        self.image = Player.plimg
+        self.image = pg.transform.scale(Player.plimg, (50, 50))
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = 50 * 15, 50 * 9
+        self.right = False
+
+    def turn(self, right):
+        if self.right != right:
+            self.image = pg.transform.flip(self.image, True, False)
+            self.right = right
