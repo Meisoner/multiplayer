@@ -10,8 +10,8 @@ from hotbar import Cell
 from utils import searchinv
 
 
-# SERVER = 'http://127.0.0.1:5000/'
-SERVER = 'http://192.168.1.69:5000/'
+SERVER = 'http://127.0.0.1:5000/'
+# SERVER = 'http://192.168.1.69:5000/'
 sss = rq.Session()
 
 
@@ -286,7 +286,11 @@ while run:
                         block = inventory[hand][0]
                         Block(blocks, delta, textures[block], pos, (bx, by), False, block)
                         placed += [[block, bx, by]]
-                        # update_inv()
+                        inventory[hand][1] -= 1
+                        if inventory[hand][1]:
+                            hotlist[hand].placeitem(hotlist[hand].getitem(), inventory[hand][1])
+                        else:
+                            hotlist[hand].rmitem()
             elif i.type == pg.KEYDOWN:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = True
@@ -304,6 +308,8 @@ while run:
                     hotlist[hand].choose()
                     hand -= 1
                     hotlist[hand].choose()
+                elif i.key == pg.K_i:
+                    update_inv()
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = False
