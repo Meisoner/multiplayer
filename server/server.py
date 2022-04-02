@@ -168,6 +168,9 @@ def addblock(token, blid, ax, ay):
     user = get_user(token)
     if not user:
         return jf(['err', 'Токен не найден.'])
+    already = cr.execute(f'SELECT block FROM Map WHERE x = {x} AND y = {y}').fetchone()
+    if already:
+        return jf(['err', 'Эти координаты уже заняты.'])
     userid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{user}"').fetchone()[0]
     check = cr.execute(f'SELECT slot FROM Inventories WHERE userid = ? AND amount > 0 AND item = ?',
                        (userid, blid)).fetchone()

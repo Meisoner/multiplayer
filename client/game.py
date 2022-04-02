@@ -279,7 +279,9 @@ while run:
                             inventory[slot][1] += 1
                         last = []
                 elif i.button == pg.BUTTON_RIGHT:
-                    if inventory[hand][1] and not ((i.pos[0] // 50, i.pos[1] // 50) == (15, 9) or falling or jumping):
+                    if any([j.check(i.pos) for j in blocks]):
+                        pass
+                    elif inventory[hand][1] and not ((i.pos[0] // 50, i.pos[1] // 50) == (15, 9) or falling or jumping):
                         scrx, scry = i.pos
                         bx = (scrx + int(delta[0])) // 50 - 15 + pos[0]
                         by = (size[1] - scry - int(delta[1])) // 50 + pos[1] - 6

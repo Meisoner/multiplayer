@@ -37,3 +37,6 @@ class Block(pg.sprite.Sprite):
                     self.dy -= int(self.dy)
         except Exception:
             pass
+
+    def check(self, coords):
+        return self.rect.x <= coords[0] <= self.rect.x + 49 and self.rect.y <= coords[1] <= self.rect.y + 49
