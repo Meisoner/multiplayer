@@ -3,6 +3,7 @@ def searchinv(invs, item):
     for i in range(5):
         if invs[i][0] == item and invs[i][1] > 0:
             res = i + 1
+            break
         elif invs[i][1] == 0 and not empty:
             empty = i + 1
     if res:
