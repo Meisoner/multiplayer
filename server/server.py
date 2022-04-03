@@ -5,6 +5,7 @@ from hashlib import sha256 as hsh
 from time import sleep
 from threading import Thread
 import os
+from generator import generator as gen
 
 
 app = Flask(__name__)

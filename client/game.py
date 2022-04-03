@@ -8,10 +8,14 @@ from detectors import FallDetector, JumpDetector, RightDetector, LeftDetector, F
 from particles import Particle
 from hotbar import Cell
 from utils import searchinv
+from random import randrange as rr
 
 
 SERVER = 'http://127.0.0.1:5000/'
 # SERVER = 'http://192.168.1.69:5000/'
+r, g = rr(100), rr(100)
+b = rr(max(r, g) + 50, 255)
+BLUE = (r, g, b)
 sss = rq.Session()
 
 
@@ -101,10 +105,12 @@ def blockdataexchanger():
         for i in broken:
             sss.get(SERVER + f'break/{token}/{i[0]}/{i[1]}')
         for i in placed:
-            sss.get(SERVER + f'place/{token}/{i[0]}/{i[1]}/{i[2]}')
+            if (i[1], i[2]) not in broken:
+                sss.get(SERVER + f'place/{token}/{i[0]}/{i[1]}/{i[2]}')
         dbackup = delta[:]
         for i in placed:
-            Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), False, i[0])
+            if (i[1], i[2]) not in broken:
+                Block(new, dbackup, textures[i[0]], pos, (i[1], i[2]), False, i[0])
         for i in map[0]:
             if (i[1], i[2]) in broken:
                 continue
@@ -192,7 +198,7 @@ stop = False
 while run:
     try:
         tick = clock.tick()
-        scr.fill((70, 80, 130))
+        scr.fill(BLUE)
         if place == 'login':
             token = login(scr)
             if place == 'in_game':
