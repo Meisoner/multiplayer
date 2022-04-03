@@ -3,7 +3,7 @@ from random import randrange as rr
 
 def generator(x, height):
     res = []
-    if True:
+    if True: # Здесь будет разбиение на разные генерации
         template = tree()
     for i in template[0]:
         res += [f'INSERT INTO Map(block, x, y) VALUES({i[0]}, {i[1] + x}, {i[2] + height + 1})']
