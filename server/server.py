@@ -176,7 +176,7 @@ def addblock(token, blid, ax, ay):
     check = cr.execute(f'SELECT slot FROM Inventories WHERE userid = ? AND amount > 0 AND item = ?',
                        (userid, blid)).fetchone()
     if check:
-        cr.execute(f'UPDATE Inventories SET amount = amount - 1 WHERE slot = {check[0]}')
+        cr.execute(f'UPDATE Inventories SET amount = amount - 1 WHERE slot = {check[0]} AND userid = {userid}')
         cr.execute(f'INSERT INTO Map(block, x, y) VALUES({blid}, {x}, {y})')
         return jf(['ok'])
     return jf(['err', 'В инвентаре игрока нет этого блока.'])
