@@ -291,14 +291,15 @@ while run:
                         scrx, scry = i.pos
                         bx = (scrx + int(delta[0])) // 50 - 15 + pos[0]
                         by = (size[1] - scry - int(delta[1])) // 50 + pos[1] - 6
-                        block = inventory[hand][0]
-                        Block(blocks, delta, textures[block], pos, (bx, by), False, block)
-                        placed += [[block, bx, by]]
-                        inventory[hand][1] -= 1
-                        if inventory[hand][1]:
-                            hotlist[hand].placeitem(hotlist[hand].getitem(), inventory[hand][1])
-                        else:
-                            hotlist[hand].rmitem()
+                        if (bx, by) not in broken:
+                            block = inventory[hand][0]
+                            Block(blocks, delta, textures[block], pos, (bx, by), False, block)
+                            placed += [[block, bx, by]]
+                            inventory[hand][1] -= 1
+                            if inventory[hand][1]:
+                                hotlist[hand].placeitem(hotlist[hand].getitem(), inventory[hand][1])
+                            else:
+                                hotlist[hand].rmitem()
             elif i.type == pg.KEYDOWN:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = True
