@@ -210,6 +210,12 @@ def off():
     os._exit(0)
 
 
+def get_height(x):
+    cr = db.cursor()
+    res = cr.execute('SELECT y FROM Map WHERE x = ' + str(x) + ' ORDER BY y DESC').fetchone()[0]
+    return res
+
+
 def committer():
     while True:
         sleep(2)
