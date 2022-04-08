@@ -85,7 +85,19 @@ def blocks(token):
     for x in range(pos[0] - 30, pos[0] + 30):
         bls = cr.execute('SELECT * FROM Map WHERE x = ' + str(x)).fetchall()
         if not bls:
-            for y in range(6):
+            hg = max(get_height(x - 1), get_height(x + 1))
+            if not hg:
+                hg = 5
+            if not rr(10):
+                if rr(2) or hg < 4:
+                    d = 1
+                else:
+                    d = -1
+                if rr(4):
+                    hg += d
+                else:
+                    hg += 2 * d
+            for y in range(hg + 1):
                 if rr(10):
                     block = 0
                 elif rr(4):
@@ -212,8 +224,10 @@ def off():
 
 def get_height(x):
     cr = db.cursor()
-    res = cr.execute('SELECT y FROM Map WHERE x = ' + str(x) + ' ORDER BY y DESC').fetchone()[0]
-    return res
+    res = cr.execute('SELECT y FROM Map WHERE x = ' + str(x) + ' ORDER BY y DESC').fetchone()
+    if res:
+        return res[0]
+    return 0
 
 
 def committer():
