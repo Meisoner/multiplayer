@@ -13,6 +13,7 @@ db = cn('gamedata.db', check_same_thread=False)
 users = dict()
 lettera = ord('a')
 save = dict()
+destinations = dict()
 
 
 def init():
@@ -72,7 +73,7 @@ def login(psw, nickname):
         return jf(['err', 'Аккаунт данного пользователя заблокирован.'])
     else:
         users[token] = nickname
-        print(users)
+        destinations[nickname] = False
         return jf(['ok', token])
 
 
@@ -86,28 +87,36 @@ def blocks(token):
     pos = cr.execute(f'SELECT x, y FROM Users WHERE nickname = "{user}"').fetchone()
     res = []
     protres = []
-    for x in range(pos[0] - 30, pos[0] + 30):
+    if destinations[user]:
+        rng = range(pos[0] + 29, pos[0] - 30, -1)
+    else:
+        rng = range(pos[0] - 30, pos[0] + 30)
+    for x in rng:
         bls = cr.execute('SELECT * FROM Map WHERE x = ' + str(x)).fetchall()
         check = cr.execute('SELECT * FROM Map WHERE y = 0 AND x = ' + str(x)).fetchone()
         if not check:
-            hg = max(get_height(x - 1), get_height(x + 1))
-            if not hg:
-                hg = 5
-            if not rr(10):
-                if rr(2) or hg < 4:
-                    d = 1
-                else:
-                    d = -1
-                if rr(4):
-                    hg += d
-                else:
-                    hg += 2 * d
-            if not rr(40):
-                d = gen(x, hg)
-                for j in range(x - 1, x + d[1] + 1):
-                    set_height(j, hg)
-                for q in d[0]:
-                    cr.execute(q)
+            if x in save.keys():
+                hg = save[x]
+            else:
+                hg = max(get_height(x - 1), get_height(x + 1))
+                rev = destinations[user]
+                if not hg:
+                    hg = 5
+                if not rr(10):
+                    if rr(2) or hg < 4:
+                        d = 1
+                    else:
+                        d = -1
+                    if rr(4):
+                        hg += d
+                    else:
+                        hg += 2 * d
+                if not rr(40):
+                    d = gen(x, hg, rev)
+                    for j in d[1]:
+                        set_height(j, hg)
+                    for q in d[0]:
+                        cr.execute(q)
             for y in range(hg + 1):
                 if rr(10):
                     block = 0
@@ -154,6 +163,8 @@ def updpos(token, ax, ay):
 #        removetoken(token)
 #        cr.execute(f'UPDATE Users SET banned = 1 WHERE nickname = "{user}"')
 #    else:
+    posx = cr.execute(f'SELECT x, y FROM Users WHERE nickname = "{user}"').fetchone()[0]
+    destinations[user] = posx > x
     cr.execute(f'UPDATE Users SET x = {x}, y = {y} WHERE nickname = "{user}"')
     return jf(['ok'])
 
@@ -234,9 +245,6 @@ def off():
 
 
 def get_height(x):
-    global save
-    if x in save.keys():
-        return save[x]
     cr = db.cursor()
     res = cr.execute('SELECT y FROM Map WHERE x = ' + str(x) + ' ORDER BY y DESC').fetchone()
     if res:
