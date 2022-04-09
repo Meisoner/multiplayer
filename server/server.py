@@ -12,6 +12,7 @@ app = Flask(__name__)
 db = cn('gamedata.db', check_same_thread=False)
 users = dict()
 lettera = ord('a')
+save = dict()
 
 
 def init():
@@ -75,6 +76,7 @@ def login(psw, nickname):
 
 @app.route('/get_blocks/<token>')
 def blocks(token):
+    global save
     cr = db.cursor()
     user = get_user(token)
     if not user:
@@ -84,7 +86,8 @@ def blocks(token):
     protres = []
     for x in range(pos[0] - 30, pos[0] + 30):
         bls = cr.execute('SELECT * FROM Map WHERE x = ' + str(x)).fetchall()
-        if not bls:
+        check = cr.execute('SELECT * FROM Map WHERE y = 0 AND x = ' + str(x)).fetchone()
+        if not check:
             hg = max(get_height(x - 1), get_height(x + 1))
             if not hg:
                 hg = 5
@@ -97,6 +100,12 @@ def blocks(token):
                     hg += d
                 else:
                     hg += 2 * d
+            if not rr(40):
+                d = gen(x, hg)
+                for j in range(x - 1, x + d[1] + 1):
+                    set_height(j, hg)
+                for q in d[0]:
+                    cr.execute(q)
             for y in range(hg + 1):
                 if rr(10):
                     block = 0
@@ -223,11 +232,19 @@ def off():
 
 
 def get_height(x):
+    global save
+    if x in save.keys():
+        return save[x]
     cr = db.cursor()
     res = cr.execute('SELECT y FROM Map WHERE x = ' + str(x) + ' ORDER BY y DESC').fetchone()
     if res:
         return res[0]
     return 0
+
+
+def set_height(x, h):
+    global save
+    save[x] = h
 
 
 def committer():
