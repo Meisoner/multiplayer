@@ -23,6 +23,8 @@ def init():
     q = '''CREATE TABLE IF NOT EXISTS Inventories(id INTEGER PRIMARY KEY AUTOINCREMENT,
             userid INTEGER references Users(id), slot INTEGER, item INTEGER DEFAULT 0, amount INTEGER DEFAULT 0)'''
     cr.execute(q)
+    for i in range(3):
+        set_height(i - 1, 5)
 
 
 def get_token():
