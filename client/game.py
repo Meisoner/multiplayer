@@ -8,14 +8,15 @@ from detectors import FallDetector, JumpDetector, RightDetector, LeftDetector, F
 from particles import Particle
 from hotbar import Cell
 from utils import searchinv
-from random import randrange as rr
+# from random import randrange as rr
 
 
 SERVER = 'http://127.0.0.1:5000/'
 # SERVER = 'http://192.168.1.69:5000/'
-r, g = rr(100), rr(100)
-b = rr(max(r, g) + 50, 255)
-BLUE = (r, g, b)
+# r, g = rr(100), rr(100)
+# b = rr(max(r, g) + 50, 255)
+BLUE = (83, 75, 222)
+# (9, 94, 180) (87, 88, 191)
 sss = rq.Session()
 
 
