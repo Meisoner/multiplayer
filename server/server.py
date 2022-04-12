@@ -14,6 +14,7 @@ users = dict()
 lettera = ord('a')
 save = dict()
 destinations = dict()
+userids = dict()
 
 
 def init():
@@ -74,6 +75,7 @@ def login(psw, nickname):
     else:
         users[token] = nickname
         destinations[nickname] = False
+        userids[nickname] = rr(10 ** 10)
         return jf(['ok', token])
 
 
@@ -103,14 +105,17 @@ def blocks(token):
                 if not hg:
                     hg = 5
                 if not rr(10):
-                    if rr(2) or hg < 4:
+                    if not rr(3) or hg < 4:
                         d = 1
                     else:
                         d = -1
-                    if rr(4):
-                        hg += d
+                    if hg > 10:
+                        hg -= 2
                     else:
-                        hg += 2 * d
+                        if rr(4):
+                            hg += d
+                        else:
+                            hg += 2 * d
                 if not rr(40):
                     d = gen(x, hg, rev)
                     for j in d[1]:
@@ -124,7 +129,10 @@ def blocks(token):
                     block = 1
                 else:
                     block = 2
-                cr.execute('INSERT INTO Map(block, x, y) VALUES(?, ?, ?)', (block, x, y))
+                try:
+                    cr.execute('INSERT INTO Map(block, x, y) VALUES(?, ?, ?)', (block, x, y))
+                except Exception:
+                    pass
                 if y == 0:
                     protres += [[block, x, 0]]
                 else:
@@ -182,13 +190,15 @@ def removeblock(token, ax, ay):
     userid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{user}"').fetchone()[0]
     if y == 0:
         return jf(['err', 'Невозможно уничтожить нижнюю границу мира.'])
-    item = cr.execute(f'SELECT block FROM Map WHERE x = {x} AND y = {y}').fetchone()[0]
+    item = cr.execute(f'SELECT block FROM Map WHERE x = {x} AND y = {y}').fetchone()
+    if not item:
+        return jf(['err'])
     cr.execute(f'DELETE FROM Map WHERE x = {x} AND y = {y}')
-    query = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item} AND userid = {userid} AND amount > 0')
+    query = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item[0]} AND userid = {userid} AND amount > 0')
     invslot = query.fetchone()
     if not invslot:
         invslot = cr.execute(f'SELECT Slot From Inventories WHERE amount = 0 AND userid = {userid}').fetchone()
-    cr.execute(f'''UPDATE Inventories SET amount = amount + 1, item = {item}
+    cr.execute(f'''UPDATE Inventories SET amount = amount + 1, item = {item[0]}
                WHERE slot = {invslot[0]} AND userid = {userid}''')
     return jf(['ok'])
 
@@ -214,6 +224,26 @@ def addblock(token, blid, ax, ay):
         cr.execute(f'INSERT INTO Map(block, x, y) VALUES({blid}, {x}, {y})')
         return jf(['ok'])
     return jf(['err', 'В инвентаре игрока нет этого блока.'])
+
+
+@app.route('/players/<token>')
+def getothers(token):
+    user = get_user(token)
+    if not user:
+        return jf(['err', 'Токен не найден.'])
+    cr = db.cursor()
+    x = cr.execute(f'SELECT x FROM Users WHERE nickname = "{user}"').fetchone()[0]
+    players = cr.execute('SELECT * FROM Users WHERE x >= ? AND x <= ?', (x - 30, x + 30)).fetchall()
+    res = []
+    for p in players:
+        res += [dict()]
+        name = p[2]
+        res[-1]['id'] = userids[name]
+        res[-1]['name'] = name
+        res[-1]['pos'] = [p[3], p[4]]
+        res[-1]['hp'] = p[6]
+    return jf(res)
+
 
 
 @app.route('/get_inv/<token>')

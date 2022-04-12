@@ -8,6 +8,7 @@ from detectors import FallDetector, JumpDetector, RightDetector, LeftDetector, F
 from particles import Particle
 from hotbar import Cell
 from utils import searchinv
+from block import HEIGHT
 # from random import randrange as rr
 
 
@@ -145,7 +146,7 @@ def update_inv():
 
 
 pg.init()
-scr = pg.display.set_mode(size := (1500, 800))
+scr = pg.display.set_mode(size := (1500, HEIGHT))
 stat = ''
 try:
     stat = sss.get(SERVER + 'game_status').json()
@@ -193,7 +194,7 @@ broken, placed = [], []
 last = []
 particles, partlist = pg.sprite.Group(), []
 mpos = (0, 0)
-others = []
+others = [pg.sprite.Group(), dict()]
 inventory = [[0, 0] for _ in range(20)]
 stop = False
 while run:
@@ -254,7 +255,7 @@ while run:
                 blocks.update(False, (-1 * tick / 5, 0))
                 delta[0] += tick / 5
                 rt = 1
-                if delta[0] >= 50:
+                if delta[0] > 50:
                     pos[0] += 1
                     delta[0] -= 50
         elif left:
@@ -262,7 +263,7 @@ while run:
                 blocks.update(False, (tick / 5, 0))
                 delta[0] -= tick / 5
                 lf = 1
-                if delta[0] <= -50:
+                if delta[0] < -50:
                     pos[0] -= 1
                     delta[0] += 50
         for i in partlist:
