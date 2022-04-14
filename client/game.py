@@ -133,11 +133,18 @@ def playerdataexchanger():
         sleep(1)
         sss.get(SERVER + f'update_pos/{token}/{pos[0]}/{pos[1]}')
         oth = sss.get(SERVER + f'players/{token}').json()
+        pids = set()
         for i in oth:
+            pids.add(i['id'])
             if i['id'] not in others[1].keys():
                 others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
             else:
-                others[1][i['id']].move(pos, i['pos'], delta)
+                if others[1][i['id']].get_pos() != tuple(i['pos']):
+                    others[1][i['id']].move(pos, i['pos'], delta)
+        for i in others[1].keys():
+            if i not in pids and others[1][i]:
+                others[1][i].remove(others[0])
+                others[1][i] = False
 
 
 def update_inv():
