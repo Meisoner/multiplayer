@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, abort, jsonify, make_response
+from flask import Flask, render_template, redirect, request, abort, jsonify, make_response, url_for
 from data import db_session, news_api
 from data.users import User
 from data.news import News
