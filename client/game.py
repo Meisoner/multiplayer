@@ -9,6 +9,7 @@ from particles import Particle
 from hotbar import Cell
 from utils import searchinv
 from block import HEIGHT
+from others import Other
 # from random import randrange as rr
 
 
@@ -127,10 +128,16 @@ def blockdataexchanger():
 
 
 def playerdataexchanger():
-    global pos, sss, token, others
+    global pos, sss, token, others, delta, blocks
     while True:
         sleep(1)
         sss.get(SERVER + f'update_pos/{token}/{pos[0]}/{pos[1]}')
+        oth = sss.get(SERVER + f'players/{token}').json()
+        for i in oth:
+            if i['id'] not in others[1].keys():
+                others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
+            else:
+                others[1][i['id']].move(pos, i['pos'], delta)
 
 
 def update_inv():
@@ -221,6 +228,7 @@ while run:
             player.draw(scr)
             particles.draw(scr)
             hotbar.draw(scr)
+            others[0].draw(scr)
             if pg.sprite.spritecollideany(falld, blocks):
                 falling = False
                 usk = 5
@@ -229,6 +237,7 @@ while run:
             if falling:
                 particles.update(0, False, 0, tick / usk)
                 blocks.update(False, (0, tick / usk))
+                others[0].update((0, tick / usk))
                 delta[1] += tick / usk
                 if usk > 3:
                     usk *= 0.999
@@ -238,6 +247,7 @@ while run:
             elif jumping:
                 particles.update(0, False, 0, -1 * tick / 5)
                 blocks.update(False, (0, -1 * tick / 5))
+                others[0].update((0, -1 * tick / 5))
                 delta[1] -= tick / 5
                 jumping -= tick / 5
                 if jumping < 1 or pg.sprite.spritecollideany(jumpd, blocks):
@@ -253,6 +263,7 @@ while run:
             if not (pg.sprite.spritecollideany(rightd, blocks) or (pg.sprite.spritecollideany(frd, blocks)
                                                                    and falling)):
                 blocks.update(False, (-1 * tick / 5, 0))
+                others[0].update((-1 * tick / 5, 0))
                 delta[0] += tick / 5
                 rt = 1
                 if delta[0] > 50:
@@ -261,6 +272,7 @@ while run:
         elif left:
             if not (pg.sprite.spritecollideany(leftd, blocks) or (pg.sprite.spritecollideany(fld, blocks) and falling)):
                 blocks.update(False, (tick / 5, 0))
+                others[0].update((tick / 5, 0))
                 delta[0] -= tick / 5
                 lf = 1
                 if delta[0] < -50:

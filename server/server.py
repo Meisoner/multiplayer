@@ -236,12 +236,13 @@ def getothers(token):
     players = cr.execute('SELECT * FROM Users WHERE x >= ? AND x <= ?', (x - 30, x + 30)).fetchall()
     res = []
     for p in players:
-        res += [dict()]
         name = p[2]
-        res[-1]['id'] = userids[name]
-        res[-1]['name'] = name
-        res[-1]['pos'] = [p[3], p[4]]
-        res[-1]['hp'] = p[6]
+        if name in users.values() and name != user:
+            res += [dict()]
+            res[-1]['id'] = userids[name]
+            res[-1]['name'] = name
+            res[-1]['pos'] = [p[3], p[4]]
+            res[-1]['hp'] = p[6]
     return jf(res)
 
 
