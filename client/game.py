@@ -10,11 +10,12 @@ from hotbar import Cell
 from utils import searchinv
 from block import HEIGHT
 from others import Other
+from independent_screens import pause
 # from random import randrange as rr
 
 
-SERVER = 'http://127.0.0.1:5000/'
-# SERVER = 'http://192.168.1.69:5000/'
+# SERVER = 'http://127.0.0.1:5000/'
+SERVER = 'http://192.168.1.72:5000/'
 # r, g = rr(100), rr(100)
 # b = rr(max(r, g) + 50, 255)
 BLUE = (83, 75, 222)
@@ -134,9 +135,12 @@ def playerdataexchanger():
         sss.get(SERVER + f'update_pos/{token}/{pos[0]}/{pos[1]}')
         oth = sss.get(SERVER + f'players/{token}').json()
         pids = set()
+        print(oth)
         for i in oth:
             pids.add(i['id'])
             if i['id'] not in others[1].keys():
+                others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
+            elif not others[1][i['id']]:
                 others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
             else:
                 if others[1][i['id']].get_pos() != tuple(i['pos']):
@@ -211,6 +215,7 @@ mpos = (0, 0)
 others = [pg.sprite.Group(), dict()]
 inventory = [[0, 0] for _ in range(20)]
 stop = False
+othermove = [0, 0]
 while run:
     try:
         tick = clock.tick()
@@ -244,7 +249,7 @@ while run:
             if falling:
                 particles.update(0, False, 0, tick / usk)
                 blocks.update(False, (0, tick / usk))
-                others[0].update((0, tick / usk))
+                othermove[1] += tick / usk
                 delta[1] += tick / usk
                 if usk > 3:
                     usk *= 0.999
@@ -254,7 +259,7 @@ while run:
             elif jumping:
                 particles.update(0, False, 0, -1 * tick / 5)
                 blocks.update(False, (0, -1 * tick / 5))
-                others[0].update((0, -1 * tick / 5))
+                othermove[1] -= tick / 5
                 delta[1] -= tick / 5
                 jumping -= tick / 5
                 if jumping < 1 or pg.sprite.spritecollideany(jumpd, blocks):
@@ -270,7 +275,7 @@ while run:
             if not (pg.sprite.spritecollideany(rightd, blocks) or (pg.sprite.spritecollideany(frd, blocks)
                                                                    and falling)):
                 blocks.update(False, (-1 * tick / 5, 0))
-                others[0].update((-1 * tick / 5, 0))
+                othermove[0] -= tick / 5
                 delta[0] += tick / 5
                 rt = 1
                 if delta[0] > 50:
@@ -279,7 +284,7 @@ while run:
         elif left:
             if not (pg.sprite.spritecollideany(leftd, blocks) or (pg.sprite.spritecollideany(fld, blocks) and falling)):
                 blocks.update(False, (tick / 5, 0))
-                others[0].update((tick / 5, 0))
+                othermove[0] += tick / 5
                 delta[0] -= tick / 5
                 lf = 1
                 if delta[0] < -50:
@@ -291,6 +296,8 @@ while run:
                 Particle(particles, col, (px, py))
         partlist.clear()
         particles.update(tick, blocks, 2 * rt - lf + 1, False)
+        others[0].update(othermove, tick)
+        othermove = [0, 0]
         for i in pg.event.get():
             if i.type == pg.QUIT:
                 sss.get(SERVER + 'exit/' + token)
@@ -340,6 +347,8 @@ while run:
                     hotlist[hand].choose()
                 elif i.key == pg.K_i:
                     update_inv()
+                elif i.key == pg.K_ESCAPE:
+                    pause(scr)
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = False
@@ -349,3 +358,4 @@ while run:
                 mpos = i.pos
     except Exception as ex:
         raise ex
+        print(ex.__class__.__name__)
