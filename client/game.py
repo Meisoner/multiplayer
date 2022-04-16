@@ -14,8 +14,8 @@ from independent_screens import pause
 # from random import randrange as rr
 
 
-# SERVER = 'http://127.0.0.1:5000/'
-SERVER = 'http://192.168.1.72:5000/'
+SERVER = 'http://127.0.0.1:5000/'
+# SERVER = 'http://192.168.1.72:5000/'
 # r, g = rr(100), rr(100)
 # b = rr(max(r, g) + 50, 255)
 BLUE = (83, 75, 222)
@@ -357,5 +357,4 @@ while run:
             elif i.type == pg.MOUSEMOTION:
                 mpos = i.pos
     except Exception as ex:
-        raise ex
         print(ex.__class__.__name__)
