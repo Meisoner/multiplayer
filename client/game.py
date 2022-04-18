@@ -21,6 +21,7 @@ SERVER = 'http://127.0.0.1:5000/'
 BLUE = (83, 75, 222)
 # (9, 94, 180) (87, 88, 191)
 sss = rq.Session()
+actions = []
 
 
 def login(screen):
@@ -129,13 +130,14 @@ def blockdataexchanger():
 
 
 def playerdataexchanger():
-    global pos, sss, token, others, delta, blocks
+    global pos, sss, token, others, delta, blocks, actions
     while True:
         sleep(1)
-        sss.get(SERVER + f'update_pos/{token}/{pos[0]}/{pos[1]}')
+        sss.post(SERVER + 'action', json={'actions': actions, 'token': token})
+        print(actions)
+        actions = []
         oth = sss.get(SERVER + f'players/{token}').json()
         pids = set()
-        print(oth)
         for i in oth:
             pids.add(i['id'])
             if i['id'] not in others[1].keys():
@@ -255,6 +257,7 @@ while run:
                     usk *= 0.999
                 if delta[1] >= 50:
                     pos[1] -= 1
+                    actions += [3]
                     delta[1] -= 50
             elif jumping:
                 particles.update(0, False, 0, -1 * tick / 5)
@@ -267,6 +270,7 @@ while run:
                     falling = True
                 if delta[1] <= -50:
                     pos[1] += 1
+                    actions += [2]
                     delta[1] += 50
         if blocks:
             pg.display.flip()
@@ -280,6 +284,7 @@ while run:
                 rt = 1
                 if delta[0] > 50:
                     pos[0] += 1
+                    actions += [1]
                     delta[0] -= 50
         elif left:
             if not (pg.sprite.spritecollideany(leftd, blocks) or (pg.sprite.spritecollideany(fld, blocks) and falling)):
@@ -289,6 +294,7 @@ while run:
                 lf = 1
                 if delta[0] < -50:
                     pos[0] -= 1
+                    actions += [0]
                     delta[0] += 50
         for i in partlist:
             px, py, col = i

@@ -6,15 +6,16 @@ from time import sleep
 from threading import Thread
 import os
 from generator import generator as gen
+from utils import users, get_user, get_token, destinations, db
+from flask_restful import Api
+import actions_resource
 
 
 app = Flask(__name__)
-db = cn('gamedata.db', check_same_thread=False)
-users = dict()
-lettera = ord('a')
+api = Api(app)
 save = dict()
-destinations = dict()
 userids = dict()
+api.add_resource(actions_resource.ActionsResource, '/action')
 
 
 def init():
@@ -22,30 +23,14 @@ def init():
     cr.execute('''CREATE TABLE IF NOT EXISTS Users(id INTEGER PRIMARY KEY AUTOINCREMENT, hash STRING,
         nickname STRING, x INTEGER DEFAULT 0, y INTEGER DEFAULT 6, banned INTEGER DEFAULT 0, hp INTEGER DEFAULT 10)''')
     cr.execute('CREATE TABLE IF NOT EXISTS Map(block INTEGER, x INTEGER, y INTEGER)')
+    cr.execute('''CREATE TABLE IF NOT EXISTS Actions(id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player INTEGER references Users(id), action INTEGER, tm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        data STRING, seen STRING DEFAULT " ")''')
     q = '''CREATE TABLE IF NOT EXISTS Inventories(id INTEGER PRIMARY KEY AUTOINCREMENT,
             userid INTEGER references Users(id), slot INTEGER, item INTEGER DEFAULT 0, amount INTEGER DEFAULT 0)'''
     cr.execute(q)
     for i in range(3):
         set_height(i - 1, 5)
-
-
-def get_token():
-    res = ''
-    for i in range(rr(30, 40)):
-        if rr(3):
-            res += str(rr(10))
-        else:
-            res += chr(lettera + rr(26))
-    return res
-
-
-def get_user(token):
-    if token not in users.keys():
-        return ''
-    elif users[token] == '-':
-        return ''
-    else:
-        return users[token]
 
 
 @app.route('/register/<psw>/<nickname>')
@@ -154,27 +139,6 @@ def gpos(token):
         return jf(['err', 'Токен не найден.'])
     pos = cr.execute(f'SELECT x, y FROM Users WHERE nickname = "{user}"').fetchone()
     return jf(pos)
-
-
-@app.route('/update_pos/<token>/<ax>/<ay>')
-def updpos(token, ax, ay):
-    cr = db.cursor()
-    try:
-        x, y = int(ax), int(ay)
-    except Exception:
-        return jf(['err', 'Недопустимое значение.'])
-    user = get_user(token)
-    if not user:
-        return jf(['err', 'Токен не найден.'])
-#    check = cr.execute(f'SELECT * FROM Map WHERE x = {x} AND y = {y}').fetchone()
-#    if check:
-#        removetoken(token)
-#        cr.execute(f'UPDATE Users SET banned = 1 WHERE nickname = "{user}"')
-#    else:
-    posx = cr.execute(f'SELECT x, y FROM Users WHERE nickname = "{user}"').fetchone()[0]
-    destinations[user] = posx > x
-    cr.execute(f'UPDATE Users SET x = {x}, y = {y} WHERE nickname = "{user}"')
-    return jf(['ok'])
 
 
 @app.route('/break/<token>/<ax>/<ay>')
