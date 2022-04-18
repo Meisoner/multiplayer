@@ -1,0 +1,17 @@
+body {
+    background-image: url("static/img/fon.jpg");
+    background-color: #eeffff;
+
+}
+h4 {
+   color: #bb00bb;
+}
+form.login_form {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 450px;
+    background-image: "static/img/fon.jpg";
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 10px;
+}
