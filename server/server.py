@@ -7,9 +7,10 @@ from time import sleep
 from threading import Thread
 from generator import generator as gen
 from flask import Flask, render_template, redirect, request, abort, jsonify, make_response, url_for
-from forms.loginform import LoginForm
+from forms.loginform import LoginForm, GoinForm
 from flask_login import LoginManager
 from data import db_session
+from data.users import User
 
 
 app = Flask(__name__)
@@ -33,8 +34,8 @@ def init():
     q = '''CREATE TABLE IF NOT EXISTS Inventories(id INTEGER PRIMARY KEY AUTOINCREMENT,
             userid INTEGER references Users(id), slot INTEGER, item INTEGER DEFAULT 0, amount INTEGER DEFAULT 0)'''
     cr.execute(q)
-    for i in range(3):
-        set_height(i - 1, 5)
+    #for i in range(3):
+        #set_height(i - 1, 5)
 
 
 def get_token():
@@ -56,6 +57,12 @@ def get_user(token):
         return users[token]
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -65,8 +72,39 @@ def index():
 def reg():
     form = LoginForm()
     if form.validate_on_submit():
-        return os.system('python client/game.py')
-    return render_template('login.html', title='Авторизация', form=form)
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            nickname=form.nickname.data
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('register.html', title='Регистрация', form=form)
+    # if form.validate_on_submit():
+    #     return os.system('python client/game.py')
+
+
+@app.route('/go_in', methods=['GET', 'POST'])
+def go_in():
+    form = GoinForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
+            return redirect('/')
+    return render_template('login.html', title='Вход', form=form)
+    # if form.validate_on_submit():
+    #     return os.system('python client/game.py')
+
+
 
 
 @app.route('/register/<psw>/<nickname>')
@@ -312,6 +350,7 @@ def committer():
     while True:
         sleep(2)
         db.commit()
+
 
 
 if __name__ == '__main__':
