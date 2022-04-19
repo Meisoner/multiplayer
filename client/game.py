@@ -133,9 +133,11 @@ def playerdataexchanger():
     global pos, sss, token, others, delta, blocks, actions
     while True:
         sleep(1)
-        sss.post(SERVER + 'action', json={'actions': actions, 'token': token})
+        la = len(actions)
+        np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
+        print(np, pos)
         print(actions)
-        actions = []
+        actions = actions[la:]
         oth = sss.get(SERVER + f'players/{token}').json()
         pids = set()
         for i in oth:

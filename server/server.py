@@ -25,7 +25,7 @@ def init():
     cr.execute('CREATE TABLE IF NOT EXISTS Map(block INTEGER, x INTEGER, y INTEGER)')
     cr.execute('''CREATE TABLE IF NOT EXISTS Actions(id INTEGER PRIMARY KEY AUTOINCREMENT,
         player INTEGER references Users(id), action INTEGER, tm TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        data STRING, seen STRING DEFAULT " ")''')
+        data STRING, seen STRING DEFAULT "| ")''')
     q = '''CREATE TABLE IF NOT EXISTS Inventories(id INTEGER PRIMARY KEY AUTOINCREMENT,
             userid INTEGER references Users(id), slot INTEGER, item INTEGER DEFAULT 0, amount INTEGER DEFAULT 0)'''
     cr.execute(q)
@@ -196,17 +196,27 @@ def getothers(token):
     if not user:
         return jf(['err', 'Токен не найден.'])
     cr = db.cursor()
-    x = cr.execute(f'SELECT x FROM Users WHERE nickname = "{user}"').fetchone()[0]
+    uid, x = cr.execute(f'SELECT id, x FROM Users WHERE nickname = "{user}"').fetchone()
     players = cr.execute('SELECT * FROM Users WHERE x >= ? AND x <= ?', (x - 30, x + 30)).fetchall()
     res = []
     for p in players:
         name = p[2]
         if name in users.values() and name != user:
+            otherid = cr.execute('SELECT id FROM Users WHERE nickname = "' + name + '"').fetchone()[0]
+            acts = cr.execute('''SELECT Action FROM Actions WHERE player = ?
+                AND datetime(tm) > datetime("now", "-5 second")
+                AND seen NOT LIKE "% ''' + str(uid) + ''' %"''',
+                (otherid,)).fetchall()
+            cr.execute('''UPDATE Actions SET seen = seen || ? WHERE player = ?
+                AND datetime(tm) > datetime("now", "-5 second")
+                AND seen NOT LIKE "% ''' + str(uid) + ''' %"''',
+                (str(uid) + ' ', otherid)).fetchall()
             res += [dict()]
             res[-1]['id'] = userids[name]
             res[-1]['name'] = name
             res[-1]['pos'] = [p[3], p[4]]
             res[-1]['hp'] = p[6]
+            res[-1]['acts'] = acts
     return jf(res)
 
 
@@ -255,6 +265,7 @@ def set_height(x, h):
 def committer():
     while True:
         sleep(2)
+        print(destinations)
         db.commit()
 
 

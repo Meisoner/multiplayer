@@ -1,4 +1,5 @@
 from flask_restful import reqparse, abort, Resource
+from flask import jsonify as jf
 from utils import get_user
 from utils import destinations, db
 
@@ -11,6 +12,7 @@ class ActionsResource(Resource):
         dat = cr.execute(f'SELECT id, x, y FROM Users WHERE nickname = "{user}"').fetchone()
         uid = dat[0]
         pos = [dat[1], dat[2]]
+        posx = pos[0]
         for i in args['actions']:
             if i == 0:
                 pos[0] -= 1
@@ -22,7 +24,8 @@ class ActionsResource(Resource):
                 pos[1] -= 1
             cr.execute('INSERT INTO Actions(player, action) VALUES(?, ?)', (uid, i))
         cr.execute(f'UPDATE Users SET x = {pos[0]}, y = {pos[1]} WHERE nickname = "{user}"')
-        print(args['actions'], pos)
+        destinations[user] = posx > pos[0]
+        return jf(pos)
 
 
 # def updpos(token, ax, ay):
