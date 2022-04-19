@@ -148,7 +148,8 @@ def playerdataexchanger():
                 others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
             else:
                 if others[1][i['id']].get_pos() != tuple(i['pos']):
-                    others[1][i['id']].move(pos, i['pos'], delta)
+                    for j in i['acts']:
+                        others[1][i['id']].move(j)
         for i in others[1].keys():
             if i not in pids and others[1][i]:
                 others[1][i].remove(others[0])

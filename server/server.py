@@ -203,22 +203,17 @@ def getothers(token):
         name = p[2]
         if name in users.values() and name != user:
             otherid = cr.execute('SELECT id FROM Users WHERE nickname = "' + name + '"').fetchone()[0]
-            acts = cr.execute('''SELECT Action FROM Actions WHERE player = ?
-                AND datetime(tm) > datetime("now", "-5 second")
-                AND seen NOT LIKE "% ''' + str(uid) + ''' %"''',
-                (otherid,)).fetchall()
-            cr.execute('''UPDATE Actions SET seen = seen || ? WHERE player = ?
-                AND datetime(tm) > datetime("now", "-5 second")
-                AND seen NOT LIKE "% ''' + str(uid) + ''' %"''',
-                (str(uid) + ' ', otherid)).fetchall()
+            cond = f''' WHERE player = {otherid} AND datetime(tm) > datetime("now", "-5 second")
+                AND Action < 4 AND seen NOT LIKE "% {str(uid)} %"'''
+            acts = cr.execute('SELECT Action FROM Actions' + cond).fetchall()
+            cr.execute('UPDATE Actions SET seen = seen || "' + str(uid) + ' "' + cond).fetchall()
             res += [dict()]
             res[-1]['id'] = userids[name]
             res[-1]['name'] = name
             res[-1]['pos'] = [p[3], p[4]]
             res[-1]['hp'] = p[6]
-            res[-1]['acts'] = acts
+            res[-1]['acts'] = [i[0] for i in acts]
     return jf(res)
-
 
 
 @app.route('/get_inv/<token>')
