@@ -10,7 +10,7 @@ from hotbar import Cell
 from utils import searchinv
 from block import HEIGHT
 from others import Other
-from independent_screens import pause
+from independent_screens import pause, inventoryview
 # from random import randrange as rr
 
 
@@ -135,8 +135,6 @@ def playerdataexchanger():
         sleep(1)
         la = len(actions)
         np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
-        print(np, pos)
-        print(actions)
         actions = actions[la:]
         oth = sss.get(SERVER + f'players/{token}').json()
         pids = set()
@@ -356,6 +354,7 @@ while run:
                     hotlist[hand].choose()
                 elif i.key == pg.K_i:
                     update_inv()
+                    inventoryview(scr, inventory, minitextures)
                 elif i.key == pg.K_ESCAPE:
                     pause(scr)
             elif i.type == pg.KEYUP:
@@ -366,4 +365,4 @@ while run:
             elif i.type == pg.MOUSEMOTION:
                 mpos = i.pos
     except Exception as ex:
-        print(ex.__class__.__name__)
+        raise ex
