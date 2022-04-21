@@ -1,10 +1,10 @@
 from utils import users, get_user, get_token, destinations, db
 from flask_restful import Api
 import actions_resource
+import inventories_resource
 from flask import jsonify as jf
 import os
 from random import randrange as rr
-from sqlite3 import connect as cn
 from hashlib import sha256 as hsh
 from time import sleep
 from threading import Thread
@@ -15,30 +15,17 @@ from flask_login import LoginManager
 from data import db_session
 from data.users import User
 
+
 app = Flask(__name__)
 api = Api(app)
 save = dict()
 userids = dict()
 api.add_resource(actions_resource.ActionsResource, '/action')
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-db = cn('gamedata.db', check_same_thread=False)
-users = dict()
+api.add_resource(inventories_resource.InventoryResource, '/get_inv/<token>')
 lettera = ord('a')
-destinations = dict()
 login_manager = LoginManager()
 login_manager.init_app(app)
-app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-db = cn('gamedata.db', check_same_thread=False)
-users = dict()
-lettera = ord('a')
-save = dict()
-destinations = dict()
-userids = dict()
-login_manager = LoginManager()
-login_manager.init_app(app)
-db_session.global_init("gamedata.db")
 
 
 def init():
@@ -91,6 +78,10 @@ def reg():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
+        cr = db.cursor()
+        uid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{form.nickname.data}"').fetchone()[0]
+        for i in range(20):
+            cr.execute(f'INSERT INTO Inventories(userid, slot) VALUES(?, ?)', (uid, i))
         return redirect('/end')
     return render_template('register.html', title='Регистрация', form=form)
     # if form.validate_on_submit():
@@ -126,7 +117,7 @@ def register(psw, nickname):
 @app.route('/token/<psw>/<nickname>')
 def login(psw, nickname):
     cr = db.cursor()
-    hs = hsh((psw).encode()).hexdigest()
+    hs = hsh((nickname + ':' + psw).encode()).hexdigest()
     print(hs)
     user = list(cr.execute(f'SELECT * FROM Users WHERE hash = "{hs}" AND nickname = "{nickname}"'))
     token = get_token()
@@ -293,17 +284,6 @@ def getothers(token):
     return jf(res)
 
 
-@app.route('/get_inv/<token>')
-def inv(token):
-    user = get_user(token)
-    if not user:
-        return jf(['err', 'Токен не найден.'])
-    cr = db.cursor()
-    inres = cr.execute(f'''SELECT item, amount FROM Inventories WHERE userid = (SELECT id FROM Users
-        WHERE nickname = "{user}")''').fetchall()
-    return jf(inres)
-
-
 @app.route('/exit/<token>')
 def removetoken(token):
     if token in users.keys():
@@ -343,6 +323,7 @@ def committer():
 
 if __name__ == '__main__':
     init()
+    db_session.global_init("gamedata.db")
     cmt = Thread(target=committer)
     cmt.setDaemon(True)
     cmt.start()

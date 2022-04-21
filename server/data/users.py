@@ -16,4 +16,4 @@ class User(SqlAlchemyBase):
         self.hash = hsh((self.nickname + ':' + password).encode()).hexdigest()
 
     def check_password(self, password):
-        return hsh((password).encode()).hexdigest()
+        return hsh((self.nickname + ':' + password).encode()).hexdigest()
