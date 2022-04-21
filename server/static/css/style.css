@@ -1,0 +1,16 @@
+body {
+    background-image: url("https://sun9-80.userapi.com/s/v1/if2/nWoxHbCds-F0CpU4oJ1XWIFVK0_29D1B44-tgrihoLsviz3jdRiDHWbpyR63APhkiNWqhTf156qJmi755LRQk3Ga.jpg?size=1920x1080&quality=96&type=album");
+
+}
+h4 {
+   color: #bb00bb;
+}
+form.login_form {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 450px;
+    background-image: "static/img/fon.jpg";
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 10px;
+}
