@@ -11,6 +11,7 @@ from forms.loginform import LoginForm, GoinForm
 from flask_login import LoginManager
 from data import db_session
 from data.users import User
+import subprocess
 
 
 app = Flask(__name__)
@@ -68,6 +69,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/end")
+def end():
+    return render_template("end.html")
+
+
 @app.route('/regi', methods=['GET', 'POST'])
 def reg():
     form = LoginForm()
@@ -87,7 +93,7 @@ def reg():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/')
+        return redirect('/end')
     return render_template('register.html', title='Регистрация', form=form)
     # if form.validate_on_submit():
     #     return os.system('python client/game.py')
@@ -99,7 +105,7 @@ def go_in():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
-            return redirect('/')
+            return redirect('/end')
     return render_template('login.html', title='Вход', form=form)
     # if form.validate_on_submit():
     #     return os.system('python client/game.py')
@@ -127,6 +133,13 @@ def login(psw, nickname):
     hs = hsh((nickname + ':' + psw).encode()).hexdigest()
     user = list(cr.execute(f'SELECT * FROM Users WHERE hash = "{hs}" AND nickname = "{nickname}"'))
     token = get_token()
+    db_sess = db_session.create_session()
+    form = GoinForm()
+    if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
+        users[token] = nickname
+        destinations[nickname] = False
+        userids[nickname] = rr(10 ** 10)
+        return jf(['ok', token])
     if not user:
         return jf(['err', 'Такого пользователя не существует.'])
     elif user[0][5]:
