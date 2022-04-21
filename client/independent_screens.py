@@ -31,6 +31,7 @@ def inventoryview(screen, inv, textures):
     avx = screct[2] // 2
     chosen = 0
     font = pg.font.Font(None, 20)
+    stat = []
     while rn2:
         screen.blit(fn, (0, 0))
         pg.draw.rect(screen, (255, 255, 255), (avx - 125, 100, 250, 200))
@@ -46,12 +47,12 @@ def inventoryview(screen, inv, textures):
                 coords = (i % 5) * 50 + avx - 114, (i // 5) * 50 + 110
                 screen.blit(textures[inv[i][0]], coords)
                 amounttext = font.render(str(inv[i][1]), True, (0, 0, 0))
-                screen.blit(amounttext, (5, 5))
+                screen.blit(amounttext, (coords[0] - 8, coords[1] - 8))
         pg.display.flip()
         for i in pg.event.get():
             if i.type == pg.KEYDOWN:
-                if i.key == pg.K_ESCAPE:
-                    return
+                if i.key == pg.K_ESCAPE or i.key == pg.K_i:
+                    return inv, stat
             elif i.type == pg.MOUSEBUTTONDOWN:
                 if i.button == pg.BUTTON_LEFT:
                     xc1 = (i.pos[0] - avx + 125) // 50
@@ -61,5 +62,9 @@ def inventoryview(screen, inv, textures):
                     elif not chosen:
                         chosen = yc1 * 5 + xc1 + 1
                         print(chosen - 1)
+                    else:
+                        inv[yc1 * 5 + xc1], inv[chosen - 1] = inv[chosen - 1], inv[yc1 * 5 + xc1]
+                        stat += [(yc1 * 5 + xc1, chosen - 1)]
+                        chosen = 0
             elif i.type == pg.QUIT:
-                return
+                return inv, stat

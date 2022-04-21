@@ -353,8 +353,13 @@ while run:
                     hand -= 1
                     hotlist[hand].choose()
                 elif i.key == pg.K_i:
+                    inventory, a = inventoryview(scr, inventory, minitextures)
                     update_inv()
-                    inventoryview(scr, inventory, minitextures)
+                    for i in range(5):
+                        if inventory[i][1]:
+                            hotlist[i].placeitem(inventory[i][0], inventory[i][1])
+                        else:
+                            hotlist[i].rmitem()
                 elif i.key == pg.K_ESCAPE:
                     pause(scr)
             elif i.type == pg.KEYUP:
