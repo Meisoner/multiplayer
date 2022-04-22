@@ -5,15 +5,24 @@ from block import HEIGHT
 
 class Other(Player):
     def __init__(self, group, playerpos, mypos, delta, nick, col, item):
+        self.ready = False
         super().__init__(group)
-        self.image = self.image
+        new = pg.Surface((50, 75), pg.SRCALPHA)
+        new.blit(self.image, (0, 25))
+        font = pg.font.Font(None, 20)
+        text = font.render(nick, True, (0, 0, 0))
+        new.blit(text, (0, 0))
+        self.image = new
         self.dx, self.dy = 0, 0
         self.rect.x = (mypos[0] - playerpos[0] + 15) * 50 - int(delta[0])
-        self.rect.y = HEIGHT - (mypos[1] - playerpos[1] + 7) * 50 - int(delta[1])
+        self.rect.y = HEIGHT - (mypos[1] - playerpos[1] + 7) * 50 - int(delta[1]) - 25
         self.coords = tuple(mypos)
         self.goal = []
+        self.ready = True
 
     def update(self, move, tick):
+        if not self.ready:
+            return
         self.dx += move[0]
         self.dy -= move[1]
         if self.goal:

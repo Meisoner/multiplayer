@@ -353,6 +353,7 @@ while run:
                     hand -= 1
                     hotlist[hand].choose()
                 elif i.key == pg.K_i:
+                    left, right, falling, jumping = False, False, False, 0
                     update_inv()
                     inventory, moved = inventoryview(scr, inventory, minitextures)
                     for i in range(5):
@@ -362,6 +363,7 @@ while run:
                             hotlist[i].rmitem()
                     sss.post(SERVER + 'get_inv/' + token, json={'moved': moved})
                 elif i.key == pg.K_ESCAPE:
+                    left, right, falling, jumping = False, False, False, 0
                     pause(scr)
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
