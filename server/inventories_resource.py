@@ -20,10 +20,10 @@ class InventoryResource(Resource):
         user = get_user(token)
         uid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{user}"').fetchone()[0]
         for i in args['moved']:
-            id1 = cr.execute(f'SELECT id FROM Inventories WHERE slot = {i[0]} AND userid = {uid}').fetchone()[0]
-            id2 = cr.execute(f'SELECT id FROM Inventories WHERE slot = {i[1]} AND userid = {uid}').fetchone()[0]
-            cr.execute(f'UPDATE Inventories SET slot = {i[1]} WHERE id = {id1}')
-            cr.execute(f'UPDATE Inventories SET slot = {i[0]} WHERE id = {id2}')
+            first = cr.execute(f'SELECT id, item, amount FROM Inventories WHERE slot = {i[0]} AND userid = {uid}').fetchone()
+            second = cr.execute(f'SELECT id, item, amount FROM Inventories WHERE slot = {i[1]} AND userid = {uid}').fetchone()
+            cr.execute(f'UPDATE Inventories SET item = {first[1]}, amount = {first[2]} WHERE id = {second[0]}')
+            cr.execute(f'UPDATE Inventories SET item = {second[1]}, amount = {second[2]} WHERE id = {first[0]}')
         return jf(['ok'])
 
 

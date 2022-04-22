@@ -314,7 +314,7 @@ while run:
                     blocks.update((i.pos[0], i.pos[1], broken, partlist, last), False)
                     if last:
                         slot = searchinv(inventory, last[0])
-                        if slot != -1:
+                        if slot != -1 and slot < 5:
                             hotlist[slot].placeitem(last[0], hotlist[slot].getamount() + 1)
                             inventory[slot][0] = last[0]
                             inventory[slot][1] += 1
