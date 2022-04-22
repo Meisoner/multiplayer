@@ -353,8 +353,8 @@ while run:
                     hand -= 1
                     hotlist[hand].choose()
                 elif i.key == pg.K_i:
-                    inventory, moved = inventoryview(scr, inventory, minitextures)
                     update_inv()
+                    inventory, moved = inventoryview(scr, inventory, minitextures)
                     for i in range(5):
                         if inventory[i][1]:
                             hotlist[i].placeitem(inventory[i][0], inventory[i][1])
