@@ -14,15 +14,16 @@ class ActionsResource(Resource):
         pos = [dat[1], dat[2]]
         posx = pos[0]
         for i in args['actions']:
-            if i == 0:
-                pos[0] -= 1
-            elif i == 1:
-                pos[0] += 1
-            elif i == 2:
-                pos[1] += 1
-            elif i == 3:
-                pos[1] -= 1
-            cr.execute('INSERT INTO Actions(player, action) VALUES(?, ?)', (uid, i))
+            if i[0] == 0:
+                if i[1] == 0:
+                    pos[0] -= 1
+                elif i[1] == 1:
+                    pos[0] += 1
+                elif i[1] == 2:
+                    pos[1] += 1
+                elif i[1] == 3:
+                    pos[1] -= 1
+            cr.execute('INSERT INTO Actions(player, action, data) VALUES(?, ?, ?)', (uid, i[0], i[1]))
         cr.execute(f'UPDATE Users SET x = {pos[0]}, y = {pos[1]} WHERE nickname = "{user}"')
         destinations[user] = posx > pos[0]
         return jf(pos)

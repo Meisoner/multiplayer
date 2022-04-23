@@ -27,14 +27,8 @@ class Block(pg.sprite.Sprite):
                     topart += [(self.rect.x, self.rect.y, pg.transform.average_color(self.image)[:3])]
                     last += [self.id]
             if move:
-                self.dx += move[0]
-                self.dy -= move[1]
-                if abs(self.dx) >= 1:
-                    self.rect.x += int(self.dx)
-                    self.dx -= int(self.dx)
-                if abs(self.dy) >= 1:
-                    self.rect.y += int(self.dy)
-                    self.dy -= int(self.dy)
+                self.rect.x += move[0]
+                self.rect.y += move[1]
         except Exception:
             pass
 

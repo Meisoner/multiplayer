@@ -135,6 +135,7 @@ def playerdataexchanger():
         sleep(1)
         la = len(actions)
         np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
+        print(np, pos)
         actions = actions[la:]
         oth = sss.get(SERVER + f'players/{token}').json()
         pids = set()
@@ -147,7 +148,8 @@ def playerdataexchanger():
             else:
                 if others[1][i['id']].get_pos() != tuple(i['pos']):
                     for j in i['acts']:
-                        others[1][i['id']].move(j)
+                        if j[0] == 1:
+                            others[1][i['id']].move(j[1])
         for i in others[1].keys():
             if i not in pids and others[1][i]:
                 others[1][i].remove(others[0])
@@ -219,6 +221,7 @@ others = [pg.sprite.Group(), dict()]
 inventory = [[0, 0] for _ in range(20)]
 stop = False
 othermove = [0, 0]
+blockdelta = [0, 0]
 while run:
     try:
         tick = clock.tick()
@@ -251,18 +254,18 @@ while run:
                 falling = True
             if falling:
                 particles.update(0, False, 0, tick / usk)
-                blocks.update(False, (0, tick / usk))
+                blockdelta[1] -= tick / usk
                 othermove[1] += tick / usk
                 delta[1] += tick / usk
                 if usk > 3:
                     usk *= 0.999
                 if delta[1] >= 50:
                     pos[1] -= 1
-                    actions += [3]
+                    actions += [(0, 3)]
                     delta[1] -= 50
             elif jumping:
                 particles.update(0, False, 0, -1 * tick / 5)
-                blocks.update(False, (0, -1 * tick / 5))
+                blockdelta[1] += tick / 5
                 othermove[1] -= tick / 5
                 delta[1] -= tick / 5
                 jumping -= tick / 5
@@ -271,7 +274,7 @@ while run:
                     falling = True
                 if delta[1] <= -50:
                     pos[1] += 1
-                    actions += [2]
+                    actions += [(0, 2)]
                     delta[1] += 50
         if blocks:
             pg.display.flip()
@@ -279,23 +282,23 @@ while run:
         if right:
             if not (pg.sprite.spritecollideany(rightd, blocks) or (pg.sprite.spritecollideany(frd, blocks)
                                                                    and falling)):
-                blocks.update(False, (-1 * tick / 5, 0))
+                blockdelta[0] -= tick / 5
                 othermove[0] -= tick / 5
                 delta[0] += tick / 5
                 rt = 1
                 if delta[0] > 50:
                     pos[0] += 1
-                    actions += [1]
+                    actions += [(0, 1)]
                     delta[0] -= 50
         elif left:
             if not (pg.sprite.spritecollideany(leftd, blocks) or (pg.sprite.spritecollideany(fld, blocks) and falling)):
-                blocks.update(False, (tick / 5, 0))
                 othermove[0] += tick / 5
                 delta[0] -= tick / 5
+                blockdelta[0] += tick / 5
                 lf = 1
                 if delta[0] < -50:
                     pos[0] -= 1
-                    actions += [0]
+                    actions += [(0, 0)]
                     delta[0] += 50
         for i in partlist:
             px, py, col = i
@@ -305,6 +308,16 @@ while run:
         particles.update(tick, blocks, 2 * rt - lf + 1, False)
         others[0].update(othermove, tick)
         othermove = [0, 0]
+        bmove = [0, 0]
+        if abs(blockdelta[0]) >= 1:
+            bmove[0] += int(blockdelta[0])
+            actions += [(1, int(blockdelta[0]))]
+            blockdelta[0] -= int(blockdelta[0])
+        if abs(blockdelta[1]) >= 1:
+            bmove[1] += int(blockdelta[1])
+            actions += [(2, int(blockdelta[1]))]
+            blockdelta[1] -= int(blockdelta[1])
+        blocks.update(False, bmove)
         for i in pg.event.get():
             if i.type == pg.QUIT:
                 sss.get(SERVER + 'exit/' + token)

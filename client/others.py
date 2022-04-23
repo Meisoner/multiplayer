@@ -54,17 +54,18 @@ class Other(Player):
             self.dy -= int(self.dy)
 
     def move(self, act):
-        tox, toy = 0, 0
-        if act == 0:
-            tox = -50
-        elif act == 1:
-            tox = 50
-        elif act == 2:
-            toy = -50
-        elif act == 3:
-            toy = 50
-        self.goal += [[tox, toy]]
-        self.coords = (self.coords[0] + tox, self.coords[1] + toy)
+        pass
+#        tox, toy = 0, 0
+#        if act == 0:
+#            tox = -50
+#        elif act == 1:
+#            tox = 50
+#        elif act == 2:
+#            toy = -50
+#        elif act == 3:
+#            toy = 50
+#        self.goal += [[tox, toy]]
+#        self.coords = (self.coords[0] + tox, self.coords[1] + toy)
 
     def get_pos(self):
         return self.coords

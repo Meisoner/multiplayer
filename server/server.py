@@ -273,14 +273,14 @@ def getothers(token):
             otherid = cr.execute('SELECT id FROM Users WHERE nickname = "' + name + '"').fetchone()[0]
             cond = f''' WHERE player = {otherid} AND datetime(tm) > datetime("now", "-5 second")
                 AND Action < 4 AND seen NOT LIKE "% {str(uid)} %"'''
-            acts = cr.execute('SELECT Action FROM Actions' + cond).fetchall()
+            acts = cr.execute('SELECT action, data FROM Actions' + cond).fetchall()
             cr.execute('UPDATE Actions SET seen = seen || "' + str(uid) + ' "' + cond).fetchall()
             res += [dict()]
             res[-1]['id'] = userids[name]
             res[-1]['name'] = name
             res[-1]['pos'] = [p[3], p[4]]
             res[-1]['hp'] = p[6]
-            res[-1]['acts'] = [i[0] for i in acts]
+            res[-1]['acts'] = acts
     return jf(res)
 
 
@@ -315,8 +315,13 @@ def set_height(x, h):
 
 
 def committer():
+    clean = 0
     while True:
         sleep(2)
+        clean = (clean + 1) % 10
+        if not clean:
+            cr = db.cursor()
+            cr.execute('DELETE FROM Actions WHERE (action = 1 OR action = 2) AND datetime(tm) < datetime("now", "-10 second")')
         # print(destinations)
         db.commit()
 
