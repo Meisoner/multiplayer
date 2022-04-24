@@ -26,26 +26,31 @@ class Other(Player):
         self.dx += move[0]
         self.dy -= move[1]
         if self.goal:
-            if abs(self.goal[0][0]) > 1:
-                if self.goal[0][0] > 0:
-                    self.goal[0][0] -= tick / 5
-                    self.dx += tick / 5
-                else:
-                    self.goal[0][0] += tick / 5
-                    self.dx -= tick / 5
-            elif abs(self.goal[0][1]) > 1:
-                self.dx += self.goal[0][0]
-                self.goal[0][0] = 0
-                if self.goal[0][1] < 0:
-                    self.goal[0][1] += tick / 5
-                    self.dy -= tick / 5
-                else:
-                    self.goal[0][1] -= tick / 5
-                    self.dy += tick / 5
+            if self.goal[0][0] == 1:
+               self.dx -= self.goal[0][1]
             else:
-                self.dy += self.goal[0][1]
-                self.goal[0][1] = 0
-                self.goal = self.goal[1:]
+                self.dy -= self.goal[0][1]
+            self.goal = self.goal[1:]
+            # if abs(self.goal[0][0]) > 1:
+            #     if self.goal[0][0] > 0:
+            #         self.goal[0][0] -= tick / 5
+            #         self.dx += tick / 5
+            #     else:
+            #         self.goal[0][0] += tick / 5
+            #         self.dx -= tick / 5
+            # elif abs(self.goal[0][1]) > 1:
+            #     self.dx += self.goal[0][0]
+            #     self.goal[0][0] = 0
+            #     if self.goal[0][1] < 0:
+            #         self.goal[0][1] += tick / 5
+            #         self.dy -= tick / 5
+            #     else:
+            #         self.goal[0][1] -= tick / 5
+            #         self.dy += tick / 5
+            # else:
+            #     self.dy += self.goal[0][1]
+            #     self.goal[0][1] = 0
+            #     self.goal = self.goal[1:]
         if abs(self.dx) >= 1:
             self.rect.x += int(self.dx)
             self.dx -= int(self.dx)
@@ -53,8 +58,8 @@ class Other(Player):
             self.rect.y += int(self.dy)
             self.dy -= int(self.dy)
 
-    def move(self, act):
-        pass
+    def move(self, type, act):
+        self.goal += [[type, act]]
 #        tox, toy = 0, 0
 #        if act == 0:
 #            tox = -50
