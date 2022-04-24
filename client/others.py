@@ -26,10 +26,8 @@ class Other(Player):
         self.dx += move[0]
         self.dy -= move[1]
         if self.goal:
-            if self.goal[0][0] == 1:
-               self.dx -= self.goal[0][1]
-            else:
-                self.dy -= self.goal[0][1]
+            self.dx -= self.goal[0][0]
+            self.dy -= self.goal[0][1]
             self.goal = self.goal[1:]
             # if abs(self.goal[0][0]) > 1:
             #     if self.goal[0][0] > 0:
@@ -59,7 +57,21 @@ class Other(Player):
             self.dy -= int(self.dy)
 
     def move(self, type, act):
-        self.goal += [[type, act]]
+        self.ready = False
+        if self.goal:
+            if not self.goal[-1][0] and type == 1:
+                self.goal[-1][0] = act
+            elif not self.goal[-1][1] and type == 2:
+                self.goal[-1][1] = act
+            elif type == 1:
+                self.goal += [[act, 0]]
+            elif type == 2:
+                self.goal += [[0, act]]
+        elif type == 1:
+            self.goal += [[act, 0]]
+        elif type == 2:
+            self.goal += [[0, act]]
+        self.ready = True
 #        tox, toy = 0, 0
 #        if act == 0:
 #            tox = -50

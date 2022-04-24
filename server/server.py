@@ -25,7 +25,17 @@ api.add_resource(inventories_resource.InventoryResource, '/get_inv/<token>')
 lettera = ord('a')
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['SECRET_KEY'] = 'secretkey:p'
+with open('crafts.txt') as file:
+    crafts = dict()
+    for i in file.read().split('\n'):
+        data = [int(j) for j in i.split()]
+        material = data[0]
+        crafts[material] = dict()
+        crafts[material][-1] = data[1]
+        for j in range(len(data) // 2 - 1):
+            crafts[material][data[j * 2 + 2]] = data[j * 2 + 3]
+print('loaded', len(crafts), 'crafts:', str(crafts).replace('-1', 'amount'))
 
 
 def init():
@@ -258,6 +268,11 @@ def addblock(token, blid, ax, ay):
     return jf(['err', 'В инвентаре игрока нет этого блока.'])
 
 
+@app.route('/crafts')
+def getcrafts():
+    return jf(crafts)
+
+
 @app.route('/players/<token>')
 def getothers(token):
     user = get_user(token)
@@ -273,8 +288,9 @@ def getothers(token):
             otherid = cr.execute('SELECT id FROM Users WHERE nickname = "' + name + '"').fetchone()[0]
             cond = f''' WHERE player = {otherid} AND datetime(tm) > datetime("now", "-5 second")
                 AND Action < 4 AND seen NOT LIKE "% {str(uid)} %"'''
-            acts = cr.execute('SELECT action, data FROM Actions' + cond).fetchall()
-            cr.execute('UPDATE Actions SET seen = seen || "' + str(uid) + ' "' + cond).fetchall()
+            ids = ', '.join([str(i[0]) for i in cr.execute('SELECT id FROM Actions' + cond).fetchall()])
+            acts = cr.execute('SELECT action, data FROM Actions WHERE id IN (' + ids + ')').fetchall()
+            cr.execute('UPDATE Actions SET seen = seen || "' + str(uid) + ' "' + 'WHERE id IN (' + ids + ')').fetchall()
             res += [dict()]
             res[-1]['id'] = userids[name]
             res[-1]['name'] = name

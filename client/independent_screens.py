@@ -68,3 +68,13 @@ def inventoryview(screen, inv, textures):
                         chosen = 0
             elif i.type == pg.QUIT:
                 return inv, stat
+
+
+    def crafting(screen, token, textures, crafts):
+        screct = screen.get_rect()
+        rn2 = True
+        avx = screct[2] // 2
+        font = pg.font.Font(None, 20)
+        stat = []
+        while rn2:
+            pg.draw.rect(screen, (255, 255, 255), (0, 0, screct[2], screct[3]))

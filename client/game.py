@@ -135,7 +135,6 @@ def playerdataexchanger():
         sleep(1)
         la = len(actions)
         np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
-        print(np, pos)
         actions = actions[la:]
         oth = sss.get(SERVER + f'players/{token}').json()
         pids = set()
@@ -147,6 +146,8 @@ def playerdataexchanger():
                 others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
             else:
                 if others[1][i['id']].get_pos() != tuple(i['pos']):
+                    if i['acts']:
+                        print(i['acts'])
                     for j in i['acts']:
                         if j[0] == 1 or j[0] == 2:
                             others[1][i['id']].move(j[0], j[1])
@@ -222,6 +223,7 @@ inventory = [[0, 0] for _ in range(20)]
 stop = False
 othermove = [0, 0]
 blockdelta = [0, 0]
+crafts, pos = False, False
 while run:
     try:
         tick = clock.tick()
@@ -239,6 +241,8 @@ while run:
                 bdats.start()
                 pdats.start()
                 update_inv()
+                crafts = sss.get(SERVER + 'crafts').json()
+                print(crafts)
         elif place == 'noserver':
             noserver(scr)
         else:
@@ -386,4 +390,4 @@ while run:
             elif i.type == pg.MOUSEMOTION:
                 mpos = i.pos
     except Exception as ex:
-        raise ex
+        pass
