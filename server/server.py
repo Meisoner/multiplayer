@@ -273,6 +273,34 @@ def getcrafts():
     return jf(crafts)
 
 
+@app.route('/craft/<token>/<int:item>')
+def craft(token, item):
+    user = get_user(token)
+    if not user:
+        return jf(['err', 'Токен не найден.'])
+    if item not in crafts.keys():
+        return jf(['err', 'Эта вещь несоздаваема.'])
+    cr = db.cursor()
+    userid = cr.execute(f'SELECT id FROM Users WHERE nickname = "{user}"').fetchone()[0]
+    data = []
+    for i in crafts[item].keys():
+        if i != -1:
+            check = cr.execute(f'''SELECT slot FROM Inventories WHERE userid = {userid} AND amount >= {crafts[item][i]}
+                AND item = {i}''').fetchone()
+            if not check:
+                return jf(['err', 'Недостаточно ресурсов.'])
+            data += [(check[0], crafts[item][i])]
+    for i in data:
+        cr.execute(f'UPDATE Inventories SET amount = amount - {i[1]} WHERE slot = {i[0]}')
+    query = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item} AND userid = {userid} AND amount > 0')
+    invslot = query.fetchone()
+    if not invslot:
+        invslot = cr.execute(f'SELECT Slot From Inventories WHERE amount = 0 AND userid = {userid}').fetchone()
+    cr.execute(f'''UPDATE Inventories SET amount = amount + {crafts[item][-1]}, item = {item}
+                   WHERE slot = {invslot[0]} AND userid = {userid}''')
+    return jf(['Успешно!'])
+
+
 @app.route('/players/<token>')
 def getothers(token):
     user = get_user(token)

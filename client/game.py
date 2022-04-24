@@ -10,7 +10,7 @@ from hotbar import Cell
 from utils import searchinv
 from block import HEIGHT
 from others import Other
-from independent_screens import pause, inventoryview
+from independent_screens import pause, inventoryview, crafting
 # from random import randrange as rr
 
 
@@ -133,28 +133,31 @@ def playerdataexchanger():
     global pos, sss, token, others, delta, blocks, actions
     while True:
         sleep(1)
-        la = len(actions)
-        np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
-        actions = actions[la:]
-        oth = sss.get(SERVER + f'players/{token}').json()
-        pids = set()
-        for i in oth:
-            pids.add(i['id'])
-            if i['id'] not in others[1].keys():
-                others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
-            elif not others[1][i['id']]:
-                others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
-            else:
-                if others[1][i['id']].get_pos() != tuple(i['pos']):
-                    if i['acts']:
-                        print(i['acts'])
-                    for j in i['acts']:
-                        if j[0] == 1 or j[0] == 2:
-                            others[1][i['id']].move(j[0], j[1])
-        for i in others[1].keys():
-            if i not in pids and others[1][i]:
-                others[1][i].remove(others[0])
-                others[1][i] = False
+        try:
+            la = len(actions)
+            np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
+            if abs(np[0] - pos[0]) > 5 or abs(np[1] - pos[1]) > 5:
+                pos = np
+            actions = actions[la:]
+            oth = sss.get(SERVER + f'players/{token}').json()
+            pids = set()
+            for i in oth:
+                pids.add(i['id'])
+                if i['id'] not in others[1].keys():
+                    others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
+                elif not others[1][i['id']]:
+                    others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
+                else:
+                    if others[1][i['id']].get_pos() != tuple(i['pos']):
+                        for j in i['acts']:
+                            if j[0] == 1 or j[0] == 2:
+                                others[1][i['id']].move(j[0], j[1])
+            for i in others[1].keys():
+                if i not in pids and others[1][i]:
+                    others[1][i].remove(others[0])
+                    others[1][i] = False
+        except Exception:
+            pass
 
 
 def update_inv():
@@ -369,16 +372,20 @@ while run:
                     hotlist[hand].choose()
                     hand -= 1
                     hotlist[hand].choose()
-                elif i.key == pg.K_i:
+                elif i.key == pg.K_i or i.key == pg.K_e:
                     left, right, falling, jumping = False, False, False, 0
                     update_inv()
-                    inventory, moved = inventoryview(scr, inventory, minitextures)
+                    if i.key == pg.K_i:
+                        inventory, moved = inventoryview(scr, inventory, minitextures)
+                        sss.post(SERVER + 'get_inv/' + token, json={'moved': moved})
+                    else:
+                        crafting(scr, textures, crafts, lambda x: sss.get(SERVER + 'craft/' + token + '/' + str(x)))
+                        update_inv()
                     for i in range(5):
                         if inventory[i][1]:
                             hotlist[i].placeitem(inventory[i][0], inventory[i][1])
                         else:
                             hotlist[i].rmitem()
-                    sss.post(SERVER + 'get_inv/' + token, json={'moved': moved})
                 elif i.key == pg.K_ESCAPE:
                     left, right, falling, jumping = False, False, False, 0
                     pause(scr)
@@ -390,4 +397,4 @@ while run:
             elif i.type == pg.MOUSEMOTION:
                 mpos = i.pos
     except Exception as ex:
-        pass
+        raise ex

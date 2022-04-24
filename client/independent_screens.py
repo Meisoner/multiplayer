@@ -70,11 +70,51 @@ def inventoryview(screen, inv, textures):
                 return inv, stat
 
 
-    def crafting(screen, token, textures, crafts):
-        screct = screen.get_rect()
-        rn2 = True
-        avx = screct[2] // 2
-        font = pg.font.Font(None, 20)
-        stat = []
-        while rn2:
-            pg.draw.rect(screen, (255, 255, 255), (0, 0, screct[2], screct[3]))
+def crafting(screen, textures, crafts, func):
+    screct = screen.get_rect()
+    rn2 = True
+    avx = screct[2] // 2
+    font = pg.font.Font(None, 50)
+    stat = []
+    title = font.render('Крафтинг', True, (0, 0, 0))
+    tx = title.get_rect()[0] // 2
+    msg = ''
+    alph = 255
+    while rn2:
+        pg.draw.rect(screen, (255, 255, 255), (0, 0, screct[2], screct[3]))
+        screen.blit(title, (avx - tx, 0))
+        for n, k in enumerate(crafts.keys()):
+            y = 55 * n + 50
+            x = 0
+            for j in crafts[k].keys():
+                if int(j) != -1:
+                    txt = font.render(str(crafts[k][j]), True, (0, 0, 0))
+                    screen.blit(txt, (x, y))
+                    x += txt.get_rect()[2] + 10
+                    screen.blit(textures[int(j)], (x, y))
+                    x += 60
+            txt = font.render('->', True, (0, 0, 0))
+            screen.blit(txt, (x, y))
+            x += txt.get_rect()[2] + 10
+            txt = font.render(str(crafts[k]['-1']), True, (0, 0, 0))
+            screen.blit(txt, (x, y))
+            x += txt.get_rect()[2] + 10
+            screen.blit(textures[int(k)], (x, y))
+            pg.draw.line(screen, (240, 240, 240), (0, y - 3), (screct[2], y - 3), 5)
+        message = font.render(msg, True, (0, 0, 0))
+        message.set_alpha(alph)
+        alph -= 1
+        screen.blit(message, (avx - message.get_rect()[2] // 2, screct[3] - message.get_rect()[3] - 10))
+        pg.display.flip()
+        for i in pg.event.get():
+            if i.type == pg.QUIT:
+                return
+            elif i.type == pg.KEYDOWN:
+                if i.key == pg.K_e:
+                    return
+            elif i.type == pg.MOUSEBUTTONDOWN:
+                if i.button == pg.BUTTON_LEFT:
+                    item = (i.pos[1] - 50) // 50
+                    if 0 <= item < len(crafts.keys()):
+                        msg = func(list(crafts.keys())[item]).json()[-1]
+                        alph = 255
