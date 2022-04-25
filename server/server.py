@@ -242,6 +242,7 @@ def removeblock(token, ax, ay):
         invslot = cr.execute(f'SELECT Slot From Inventories WHERE amount = 0 AND userid = {userid}').fetchone()
     cr.execute(f'''UPDATE Inventories SET amount = amount + 1, item = {item[0]}
                WHERE slot = {invslot[0]} AND userid = {userid}''')
+    cr.execute('INSERT INTO Actions(player, action, data) VALUES(?, ?, ?)', (userid, 3, str(x) + ' ' + str(y)))
     return jf(['ok'])
 
 
@@ -291,7 +292,7 @@ def craft(token, item):
                 return jf(['err', 'Недостаточно ресурсов.'])
             data += [(check[0], crafts[item][i])]
     for i in data:
-        cr.execute(f'UPDATE Inventories SET amount = amount - {i[1]} WHERE slot = {i[0]}')
+        cr.execute(f'UPDATE Inventories SET amount = amount - {i[1]} WHERE slot = {i[0]} AND userid = {userid}')
     query = cr.execute(f'SELECT Slot FROM Inventories WHERE item = {item} AND userid = {userid} AND amount > 0')
     invslot = query.fetchone()
     if not invslot:

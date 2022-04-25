@@ -152,6 +152,11 @@ def playerdataexchanger():
                         for j in i['acts']:
                             if j[0] == 1 or j[0] == 2:
                                 others[1][i['id']].move(j[0], j[1])
+                            elif j[0] == 3:
+                                coords = [int(n) for n in j[1].split()]
+                                sx = (coords[0] - pos[0] + 15) * 50 - int(delta[0])
+                                sy = HEIGHT - (coords[1] - pos[1] + 7) * 50 - int(delta[1])
+                                blocks.update((sx, sy, broken, partlist, last), False)
             for i in others[1].keys():
                 if i not in pids and others[1][i]:
                     others[1][i].remove(others[0])
@@ -245,7 +250,6 @@ while run:
                 pdats.start()
                 update_inv()
                 crafts = sss.get(SERVER + 'crafts').json()
-                print(crafts)
         elif place == 'noserver':
             noserver(scr)
         else:
