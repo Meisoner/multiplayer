@@ -185,13 +185,17 @@ def blocks(token):
                         set_height(j, hg)
                     for q in d[0]:
                         cr.execute(q)
-            for y in range(hg + 1):
+            if rr(8):
+                block = 0
+            else:
+                block = 9
+            cr.execute('INSERT INTO Map(block, x, y) VALUES(?, ?, ?)', (block, x, hg))
+            cr.execute('INSERT INTO Map(block, x, y) VALUES(?, ?, ?)', (0, x, hg - 1))
+            for y in range(hg - 1):
                 if rr(10):
-                    block = 0
-                elif rr(4):
-                    block = 1
+                    block = 6
                 else:
-                    block = 2
+                    block = 8
                 try:
                     cr.execute('INSERT INTO Map(block, x, y) VALUES(?, ?, ?)', (block, x, y))
                 except Exception:
