@@ -135,8 +135,9 @@ def playerdataexchanger():
         sleep(1)
         try:
             la = len(actions)
+            ps = tuple(pos)
             np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
-            if abs(np[0] - pos[0]) > 5 or abs(np[1] - pos[1]) > 5:
+            if tuple(np) != ps:
                 pos = np
             actions = actions[la:]
             oth = sss.get(SERVER + f'players/{token}').json()
