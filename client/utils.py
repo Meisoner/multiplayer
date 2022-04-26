@@ -1,4 +1,4 @@
-def searchinv(invs, item):
+def searchinv(invs, item, allowempty=True):
     res, empty = 0, 0
     for i in range(20):
         if invs[i][0] == item and invs[i][1] > 0:
@@ -8,7 +8,7 @@ def searchinv(invs, item):
             empty = i + 1
     if res:
         return res - 1
-    elif empty:
+    elif empty and allowempty:
         return empty - 1
     else:
         return -1

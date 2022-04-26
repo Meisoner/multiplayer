@@ -16,7 +16,7 @@ class Other(Player):
         self.dx, self.dy = 0, 0
         self.rect.x = (mypos[0] - playerpos[0] + 15) * 50 - int(delta[0])
         self.rect.y = HEIGHT - (mypos[1] - playerpos[1] + 7) * 50 - int(delta[1]) - 25
-        self.coords = tuple(mypos)
+        self.coords = mypos
         self.goal = []
         self.ready = True
 
@@ -83,6 +83,3 @@ class Other(Player):
 #            toy = 50
 #        self.goal += [[tox, toy]]
 #        self.coords = (self.coords[0] + tox, self.coords[1] + toy)
-
-    def get_pos(self):
-        return self.coords
