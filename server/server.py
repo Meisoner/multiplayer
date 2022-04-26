@@ -66,6 +66,7 @@ def index():
 
 @app.route("/end")
 def end():
+    os.system('python game.py')
     return render_template("end.html")
 
 
@@ -77,6 +78,10 @@ def reg():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Пароли не совпадают")
+        if form.nickname.data.isdigit():
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="В логине должны быть буквы")
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
             return render_template('register.html', title='Регистрация',
