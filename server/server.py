@@ -30,11 +30,12 @@ with open('crafts.txt') as file:
     crafts = dict()
     for i in file.read().split('\n'):
         data = [int(j) for j in i.split()]
-        material = data[0]
-        crafts[material] = dict()
-        crafts[material][-1] = data[1]
-        for j in range(len(data) // 2 - 1):
-            crafts[material][data[j * 2 + 2]] = data[j * 2 + 3]
+        if data:
+            material = data[0]
+            crafts[material] = dict()
+            crafts[material][-1] = data[1]
+            for j in range(len(data) // 2 - 1):
+                crafts[material][data[j * 2 + 2]] = data[j * 2 + 3]
 print('loaded', len(crafts), 'crafts:', str(crafts).replace('-1', 'amount'))
 
 
@@ -99,8 +100,6 @@ def reg():
             cr.execute(f'INSERT INTO Inventories(userid, slot) VALUES(?, ?)', (uid, i))
         return redirect('/end')
     return render_template('register.html', title='Регистрация', form=form)
-    # if form.validate_on_submit():
-    #     return os.system('python client/game.py')
 
 
 @app.route('/go_in', methods=['GET', 'POST'])
@@ -111,8 +110,6 @@ def go_in():
         if db_sess.query(User).filter(User.nickname == form.nickname.data).first():
             return redirect('/end')
     return render_template('login.html', title='Вход', form=form)
-    # if form.validate_on_submit():
-    #     return os.system('python client/game.py')
 
 
 @app.route('/register/<psw>/<nickname>')

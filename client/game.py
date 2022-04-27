@@ -11,15 +11,11 @@ from utils import searchinv
 from block import HEIGHT
 from others import Other
 from independent_screens import pause, inventoryview, crafting
-# from random import randrange as rr
 
 
 SERVER = 'http://127.0.0.1:5000/'
-# SERVER = 'http://192.168.1.72:5000/'
-# r, g = rr(100), rr(100)
-# b = rr(max(r, g) + 50, 255)
+# SERVER = 'http://185.240.103.30:80/'
 BLUE = (83, 75, 222)
-# (9, 94, 180) (87, 88, 191)
 sss = rq.Session()
 actions = []
 

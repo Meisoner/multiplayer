@@ -10,14 +10,33 @@ def pause(screen):
     fn.blit(cover, (0, 0))
     rn2 = True
     avx = screct[2] // 2
+    buttons = ['Продолжить']
+    font = pg.font.Font(None, 30)
+    screen.blit(fn, (0, 0))
+    rects = []
+    for i in range(len(buttons)):
+        text = font.render(buttons[i], True, (0, 0, 0))
+        tsize = text.get_rect()[2]
+        pg.draw.rect(screen, (255, 255, 255), (avx - tsize // 2 - 10, 100 + 70 * i, tsize + 20, 40))
+        rects += [(avx - tsize // 2 - 10, avx + tsize // 2 + 10, 100 + 70 * i, 140 + 70 * i)]
+        screen.blit(text, (avx - tsize // 2, 105 + 70 * i))
     while rn2:
-        screen.blit(fn, (0, 0))
-        pg.draw.rect(screen, (255, 255, 255), (avx - 50, 100, 100, 40))
         pg.display.flip()
+        button = 0
         for i in pg.event.get():
+            if i.type == pg.QUIT:
+                return
             if i.type == pg.KEYDOWN:
                 if i.key == pg.K_ESCAPE:
                     return
+            if i.type == pg.MOUSEBUTTONDOWN:
+                if i.button == pg.BUTTON_LEFT:
+                    for j in range(len(rects)):
+                        if rects[j][0] <= i.pos[0] <= rects[j][1] and rects[j][2] <= i.pos[1] <= rects[j][3]:
+                            button = j + 1
+        if button:
+            if button == 1:
+                return
 
 
 def inventoryview(screen, inv, textures):
