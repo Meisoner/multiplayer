@@ -1,6 +1,29 @@
 import pygame as pg
 
 
+def message(fn, screen):
+    bigfont = pg.font.Font(None, 80)
+    title = bigfont.render('Отправить сообщение', True, (255, 255, 255))
+    screct = screen.get_rect()
+    avx = screct[2] // 2
+    titlex = title.get_rect()[2] // 2
+    font = pg.font.Font(None, 30)
+    text = ''
+    while True:
+        screen.blit(fn, (0, 0))
+        screen.blit(title, (avx - titlex, 0))
+        for i in pg.event.get():
+            if i.type == pg.QUIT:
+                return
+            if i.type == pg.KEYDOWN:
+                if i.key == pg.K_ESCAPE:
+                    return
+        pg.draw.rect(screen, (255, 255, 255), (avx - 150, 100, 300, 50))
+        timg = font.render(text + '|', True, (0, 0, 0))
+        screen.blit(timg, (avx - 140, 110))
+        pg.display.flip()
+
+
 def pause(screen):
     fn = screen.copy()
     screct = screen.get_rect()
@@ -10,7 +33,7 @@ def pause(screen):
     fn.blit(cover, (0, 0))
     rn2 = True
     avx = screct[2] // 2
-    buttons = ['Продолжить']
+    buttons = ['Продолжить', 'Чат']
     font = pg.font.Font(None, 30)
     screen.blit(fn, (0, 0))
     rects = []
@@ -37,6 +60,8 @@ def pause(screen):
         if button:
             if button == 1:
                 return
+            elif button == 2:
+                return message(fn, screen)
 
 
 def inventoryview(screen, inv, textures):

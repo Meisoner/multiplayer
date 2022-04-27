@@ -13,8 +13,8 @@ from others import Other
 from independent_screens import pause, inventoryview, crafting
 
 
-SERVER = 'http://127.0.0.1:5000/'
-# SERVER = 'http://185.240.103.30:80/'
+# SERVER = 'http://127.0.0.1:5000/'
+SERVER = 'http://185.240.103.30:80/'
 BLUE = (83, 75, 222)
 sss = rq.Session()
 actions = []
@@ -228,9 +228,14 @@ stop = False
 othermove = [0, 0]
 blockdelta = [0, 0]
 crafts, pos = False, False
+paused = False
 while run:
     try:
         tick = clock.tick()
+        if paused:
+            tick = 0
+            left, right, falling, jumping = False, False, False, 0
+            paused = False
         scr.fill(BLUE)
         if place == 'login':
             token = login(scr)
@@ -246,7 +251,6 @@ while run:
                 pdats.start()
                 update_inv()
                 crafts = sss.get(SERVER + 'crafts').json()
-                print(crafts)
         elif place == 'noserver':
             noserver(scr)
         else:
@@ -374,7 +378,7 @@ while run:
                     hand -= 1
                     hotlist[hand].choose()
                 elif i.key == pg.K_i or i.key == pg.K_e:
-                    left, right, falling, jumping = False, False, False, 0
+                    paused = True
                     update_inv()
                     if i.key == pg.K_i:
                         inventory, moved = inventoryview(scr, inventory, minitextures)
@@ -403,8 +407,8 @@ while run:
                         else:
                             hotlist[i].rmitem()
                 elif i.key == pg.K_ESCAPE:
-                    left, right, falling, jumping = False, False, False, 0
                     pause(scr)
+                    paused = True
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
                     right = False
