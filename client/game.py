@@ -126,7 +126,7 @@ def blockdataexchanger():
 
 
 def playerdataexchanger():
-    global pos, sss, token, others, delta, blocks, actions
+    global pos, sss, token, others, delta, blocks, actions, chat
     while True:
         sleep(1)
         try:
@@ -154,7 +154,7 @@ def playerdataexchanger():
                             sy = HEIGHT - (coords[1] - pos[1] + 7) * 50 - int(delta[1])
                             blocks.update((sx, sy, broken, partlist, last), False)
                         elif j[0] == 4:
-                            print(j[1])
+                            chat += [[10000, j[1], i['name']]]
             for i in others[1].keys():
                 if i not in pids and others[1][i]:
                     others[1][i].remove(others[0])
@@ -176,7 +176,8 @@ def update_inv():
 
 
 pg.init()
-scr = pg.display.set_mode(size := (1500, HEIGHT))
+size = (1500, HEIGHT)
+scr = pg.display.set_mode(size)
 stat = ''
 try:
     stat = sss.get(SERVER + 'game_status').json()
@@ -231,6 +232,8 @@ othermove = [0, 0]
 blockdelta = [0, 0]
 crafts, pos = False, False
 paused = False
+chat = []
+chatfont = pg.font.Font(None, 30)
 while run:
     try:
         tick = clock.tick()
@@ -261,6 +264,19 @@ while run:
             particles.draw(scr)
             hotbar.draw(scr)
             others[0].draw(scr)
+            for j in range(len(chat)):
+                chat[j][0] -= tick
+                text = chatfont.render(chat[j][2] + ': ' + chat[j][1], True, (255, 255, 255))
+                tlen = text.get_rect()[2]
+                im = pg.Surface((tlen + 20, 40))
+                im.set_alpha(150)
+                im.blit(text, (10, 10))
+                scr.blit(im, (0, 150 + 40 * j))
+            nc = []
+            for j in range(len(chat)):
+                if chat[j][0] > 0:
+                    nc += [chat[j]]
+            chat = nc
             if pg.sprite.spritecollideany(falld, blocks):
                 falling = False
                 usk = 5
@@ -413,6 +429,7 @@ while run:
                     if act is not None:
                         if act[0] == 1:
                             actions += [(4, act[1])]
+                            chat += [[10000, act[1], 'Я']]
                     paused = True
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
