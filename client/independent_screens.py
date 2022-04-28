@@ -9,6 +9,20 @@ def message(fn, screen):
     titlex = title.get_rect()[2] // 2
     font = pg.font.Font(None, 30)
     text = ''
+    rus = 'йцукенгшщзхъфывапролджэячсмить'
+    eng = "qwertyuiop--asdfghjkl--zxcvbnm"
+    res = dict()
+    for i in range(len(rus)):
+        if eng[i] != '-':
+            res[getattr(pg, 'K_' + eng[i])] = rus[i]
+    res[pg.K_SEMICOLON] = 'ж'
+    res[pg.K_SPACE] = ' '
+    res[pg.K_COMMA] = 'б'
+    res[pg.K_QUOTE] = 'э'
+    res[pg.K_RIGHTBRACKET] = 'ъ'
+    res[pg.K_LEFTBRACKET] = 'х'
+    res[pg.K_PERIOD] = 'ю'
+    res[pg.K_BACKQUOTE] = 'ё'
     while True:
         screen.blit(fn, (0, 0))
         screen.blit(title, (avx - titlex, 0))
@@ -18,9 +32,17 @@ def message(fn, screen):
             if i.type == pg.KEYDOWN:
                 if i.key == pg.K_ESCAPE:
                     return
-        pg.draw.rect(screen, (255, 255, 255), (avx - 150, 100, 300, 50))
+                elif i.key in res.keys() and len(text) < 100:
+                    text += res[i.key]
+                elif i.key == pg.K_BACKSPACE and text:
+                    text = text[:-1]
+                elif i.key == pg.K_RETURN:
+                    return [1, text]
         timg = font.render(text + '|', True, (0, 0, 0))
-        screen.blit(timg, (avx - 140, 110))
+        tx = timg.get_rect()[2]
+        final = max(300, tx + 10)
+        pg.draw.rect(screen, (255, 255, 255), (avx - final // 2, 100, final, 50))
+        screen.blit(timg, (avx - final // 2 + 10, 110))
         pg.display.flip()
 
 

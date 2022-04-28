@@ -153,6 +153,8 @@ def playerdataexchanger():
                             sx = (coords[0] - pos[0] + 15) * 50 - int(delta[0])
                             sy = HEIGHT - (coords[1] - pos[1] + 7) * 50 - int(delta[1])
                             blocks.update((sx, sy, broken, partlist, last), False)
+                        elif j[0] == 4:
+                            print(j[1])
             for i in others[1].keys():
                 if i not in pids and others[1][i]:
                     others[1][i].remove(others[0])
@@ -406,8 +408,11 @@ while run:
                             hotlist[i].placeitem(inventory[i][0], inventory[i][1])
                         else:
                             hotlist[i].rmitem()
-                elif i.key == pg.K_ESCAPE:
-                    pause(scr)
+                elif i.key == pg.K_ESCAPE or i.key == pg.K_p:
+                    act = pause(scr)
+                    if act is not None:
+                        if act[0] == 1:
+                            actions += [(4, act[1])]
                     paused = True
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
