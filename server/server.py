@@ -322,7 +322,7 @@ def getothers(token):
         if name in users.values() and name != user:
             otherid = cr.execute('SELECT id FROM Users WHERE nickname = "' + name + '"').fetchone()[0]
             cond = f''' WHERE player = {otherid} AND datetime(tm) > datetime("now", "-5 second")
-                AND Action < 4 AND seen NOT LIKE "% {str(uid)} %"'''
+                AND Action < 5 AND seen NOT LIKE "% {str(uid)} %"'''
             ids = ', '.join([str(i[0]) for i in cr.execute('SELECT id FROM Actions' + cond).fetchall()])
             acts = cr.execute('SELECT action, data FROM Actions WHERE id IN (' + ids + ')').fetchall()
             cr.execute('UPDATE Actions SET seen = seen || "' + str(uid) + ' "' + 'WHERE id IN (' + ids + ')').fetchall()
@@ -372,7 +372,8 @@ def committer():
         clean = (clean + 1) % 10
         if not clean:
             cr = db.cursor()
-            cr.execute('DELETE FROM Actions WHERE (action = 1 OR action = 2) AND datetime(tm) < datetime("now", "-10 second")')
+            cr.execute('''DELETE FROM Actions WHERE (action = 1 OR action = 2)
+                AND datetime(tm) < datetime("now", "-10 second")''')
         # print(destinations)
         db.commit()
 
