@@ -15,6 +15,8 @@ def message(fn, screen):
     for i in range(len(rus)):
         if eng[i] != '-':
             res[getattr(pg, 'K_' + eng[i])] = rus[i]
+    for i in range(10):
+        res[getattr(pg, 'K_' + str(i))] = str(i)
     res[pg.K_SEMICOLON] = 'ж'
     res[pg.K_SPACE] = ' '
     res[pg.K_COMMA] = 'б'
