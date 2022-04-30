@@ -1,7 +1,5 @@
 import pygame as pg
-
-
-HEIGHT = 800
+from utils import HEIGHT
 
 
 class Block(pg.sprite.Sprite):

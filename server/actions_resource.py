@@ -4,6 +4,7 @@ from utils import get_user
 from utils import destinations, db
 
 
+# API для получения действий других игроков и публикации своих
 class ActionsResource(Resource):
     def post(self):
         cr = db.cursor()
@@ -27,26 +28,6 @@ class ActionsResource(Resource):
         cr.execute(f'UPDATE Users SET x = {pos[0]}, y = {pos[1]} WHERE nickname = "{user}"')
         destinations[user] = posx > pos[0]
         return jf(pos)
-
-
-# def updpos(token, ax, ay):
-#     cr = db.cursor()
-#     try:
-#         x, y = int(ax), int(ay)
-#     except Exception:
-#         return jf(['err', 'Недопустимое значение.'])
-#     user = get_user(token)
-#     if not user:
-#         return jf(['err', 'Токен не найден.'])
-# #    check = cr.execute(f'SELECT * FROM Map WHERE x = {x} AND y = {y}').fetchone()
-# #    if check:
-# #        removetoken(token)
-# #        cr.execute(f'UPDATE Users SET banned = 1 WHERE nickname = "{user}"')
-# #    else:
-#     posx = cr.execute(f'SELECT x, y FROM Users WHERE nickname = "{user}"').fetchone()[0]
-#     destinations[user] = posx > x
-#
-#     return jf(['ok'])
 
 
 parser = reqparse.RequestParser()

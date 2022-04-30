@@ -8,6 +8,7 @@ lettera = ord('a')
 db = cn('gamedata.db', check_same_thread=False)
 
 
+# Функция для создания случайных токенов доступа
 def get_token():
     res = ''
     for i in range(rr(30, 40)):
@@ -18,6 +19,7 @@ def get_token():
     return res
 
 
+# Функция для получения пользователя по токену
 def get_user(token):
     if token not in users.keys():
         return ''

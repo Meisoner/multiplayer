@@ -1,6 +1,7 @@
 from random import randrange as rr
 
 
+# Функция, обеспечивающая генерацию строений в мире
 def generator(x, height, rev):
     res = []
     if True: # Здесь будет разбиение на разные генерации
@@ -24,6 +25,7 @@ def generator(x, height, rev):
     return res, range(mn - 1, mx + 2)
 
 
+# Строение: Дерево
 def tree():
     height = rr(4, 6)
     length = height - height % 2 + 1

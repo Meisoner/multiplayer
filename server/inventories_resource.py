@@ -4,6 +4,7 @@ from utils import get_user
 from utils import db
 
 
+# API для публикации действий с инвентарём и получения данных о нём
 class InventoryResource(Resource):
     def get(self, token):
         user = get_user(token)

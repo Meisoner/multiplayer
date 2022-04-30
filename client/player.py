@@ -1,6 +1,7 @@
 import pygame as pg
 
 
+# Класс текущего игрока
 class Player(pg.sprite.Sprite):
     plimg = pg.image.load('textures/ninja.png')
 

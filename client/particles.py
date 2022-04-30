@@ -3,6 +3,7 @@ import pygame as pg
 from math import cos, pi
 
 
+# Класс частицы ломания блока
 class Particle(pg.sprite.Sprite):
     def __init__(self, group, col, pos):
         super().__init__(group)

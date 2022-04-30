@@ -67,10 +67,10 @@ def index():
 
 @app.route("/end")
 def end():
-    os.system('python game.py')
     return render_template("end.html")
 
 
+# Форма регистрации
 @app.route('/regi', methods=['GET', 'POST'])
 def reg():
     form = LoginForm()
@@ -112,6 +112,7 @@ def go_in():
     return render_template('login.html', title='Вход', form=form)
 
 
+# Функция для регистрации новых игроков
 @app.route('/register/<psw>/<nickname>')
 def register(psw, nickname):
     cr = db.cursor()
@@ -126,6 +127,7 @@ def register(psw, nickname):
     return jf(['ok'])
 
 
+# Функция для обеспечения доступа зарегистрировавшихся пользователей к сервисам игры
 @app.route('/token/<psw>/<nickname>')
 def login(psw, nickname):
     cr = db.cursor()
@@ -144,6 +146,7 @@ def login(psw, nickname):
         return jf(['ok', token])
 
 
+# Функция для получения информации о блоках поблизости
 @app.route('/get_blocks/<token>')
 def blocks(token):
     global save
@@ -215,6 +218,7 @@ def blocks(token):
     return jf([res, protres])
 
 
+# Функция для получения информации о позиции игрока
 @app.route('/get_pos/<token>')
 def gpos(token):
     cr = db.cursor()
@@ -225,6 +229,7 @@ def gpos(token):
     return jf(pos)
 
 
+# Функция для ломания блока
 @app.route('/break/<token>/<ax>/<ay>')
 def removeblock(token, ax, ay):
     cr = db.cursor()
@@ -252,6 +257,7 @@ def removeblock(token, ax, ay):
     return jf(['ok'])
 
 
+# Функция для постановки блока
 @app.route('/place/<token>/<int:blid>/<ax>/<ay>')
 def addblock(token, blid, ax, ay):
     cr = db.cursor()
@@ -275,11 +281,13 @@ def addblock(token, blid, ax, ay):
     return jf(['err', 'В инвентаре игрока нет этого блока.'])
 
 
+# Функция для получения списка досупных крафтов
 @app.route('/crafts')
 def getcrafts():
     return jf(crafts)
 
 
+# Функция для создания вещей
 @app.route('/craft/<token>/<int:item>')
 def craft(token, item):
     user = get_user(token)
@@ -308,6 +316,7 @@ def craft(token, item):
     return jf(['Успешно!'])
 
 
+# Функция для получения информации об игроках поблизости
 @app.route('/players/<token>')
 def getothers(token):
     user = get_user(token)
@@ -335,6 +344,7 @@ def getothers(token):
     return jf(res)
 
 
+# Функция, показывающая, что игрок вышел с сервера
 @app.route('/exit/<token>')
 def removetoken(token):
     if token in users.keys():
@@ -342,16 +352,13 @@ def removetoken(token):
     return jf(['ok'])
 
 
+# Функй=ция для получения информации о работоспособности сервера
 @app.route('/game_status')
 def status():
     return '"Working"'
 
 
-@app.route('/off')
-def off():
-    os._exit(0)
-
-
+# Фунция для получения высоты в определённом месте
 def get_height(x):
     cr = db.cursor()
     res = cr.execute('SELECT y FROM Map WHERE x = ' + str(x) + ' ORDER BY y DESC').fetchone()
@@ -360,11 +367,13 @@ def get_height(x):
     return 0
 
 
+# Функция для искуственной установки высоты в определённом месте
 def set_height(x, h):
     global save
     save[x] = h
 
 
+# Поток, обеспечивающий запись изменений в базу данных
 def committer():
     clean = 0
     while True:

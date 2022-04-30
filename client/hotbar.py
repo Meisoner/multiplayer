@@ -1,6 +1,7 @@
 import pygame as pg
 
 
+# Ячейка в меню быстрого доступа к блокам
 class Cell(pg.sprite.Sprite):
     def __init__(self, group, num, textures):
         super().__init__(group)

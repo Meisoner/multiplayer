@@ -1,6 +1,7 @@
 import pygame as pg
 
 
+# Меню отправки сообщений
 def message(fn, screen):
     bigfont = pg.font.Font(None, 80)
     title = bigfont.render('Отправить сообщение', True, (255, 255, 255))
@@ -48,6 +49,7 @@ def message(fn, screen):
         pg.display.flip()
 
 
+# Меню паузы
 def pause(screen):
     fn = screen.copy()
     screct = screen.get_rect()
@@ -88,6 +90,7 @@ def pause(screen):
                 return message(fn, screen)
 
 
+# Меню инвентаря
 def inventoryview(screen, inv, textures):
     fn = screen.copy()
     screct = screen.get_rect()
@@ -138,6 +141,7 @@ def inventoryview(screen, inv, textures):
                 return inv, stat
 
 
+# Меню создания предметов
 def crafting(screen, textures, crafts, func):
     screct = screen.get_rect()
     rn2 = True

@@ -7,8 +7,7 @@ from player import Player
 from detectors import FallDetector, JumpDetector, RightDetector, LeftDetector, FallLeftDetector, FallRightDetector
 from particles import Particle
 from hotbar import Cell
-from utils import searchinv
-from block import HEIGHT
+from utils import searchinv, HEIGHT
 from others import Other
 from independent_screens import pause, inventoryview, crafting
 
@@ -20,6 +19,7 @@ sss = rq.Session()
 actions = []
 
 
+# Экран входа в аккаунт
 def login(screen):
     global run, place
     keys = {getattr(pg, 'K_' + str(key)): str(key) for key in list(range(10)) + [chr(ord('a') + j) for j in range(26)]}
@@ -79,6 +79,7 @@ def login(screen):
         pg.display.flip()
 
 
+# Сообщение о том, что сервер на запущен
 def noserver(screen):
     global run
     timerun = True
@@ -95,6 +96,7 @@ def noserver(screen):
                 return
 
 
+# Поток, обновляющий блоки
 def blockdataexchanger():
     global blocks, pos, sss, token, delta, broken, placed, stop
     while True:
@@ -125,6 +127,7 @@ def blockdataexchanger():
         stop = False
 
 
+# Поток, обновляющий игроков
 def playerdataexchanger():
     global pos, sss, token, others, delta, blocks, actions, chat
     while True:
@@ -163,6 +166,7 @@ def playerdataexchanger():
             pass
 
 
+# Функция для обновления информации об инвентаре
 def update_inv():
     global token, inventory
     newinv = sss.get(SERVER + f'get_inv/{token}').json()
@@ -176,7 +180,7 @@ def update_inv():
 
 
 pg.init()
-size = (1500, HEIGHT)
+size = (1280, HEIGHT)
 scr = pg.display.set_mode(size)
 stat = ''
 try:
