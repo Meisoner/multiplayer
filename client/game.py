@@ -83,7 +83,7 @@ def login(screen):
 def noserver(screen):
     global run
     timerun = True
-    font = pg.font.Font(None, 80)
+    font = pg.font.Font(None, 75)
     warn = font.render('Отсутствует подключение к игровому серверу.', True, (255, 255, 255))
     rect = warn.get_rect()
     while timerun:
