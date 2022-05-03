@@ -381,7 +381,6 @@ def committer():
         if not clean:
             cr = db.cursor()
             cr.execute('''DELETE FROM Actions WHERE action = 1 AND datetime(tm) < datetime("now", "-10 second")''')
-        # print(destinations)
         db.commit()
 
 
