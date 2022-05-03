@@ -149,14 +149,14 @@ def playerdataexchanger():
                     others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
                 else:
                     for j in i['acts']:
-                        if j[0] == 1 or j[0] == 2:
-                            others[1][i['id']].move(j[0], j[1])
-                        elif j[0] == 3:
+                        if j[0] == 1:
+                            others[1][i['id']].move(j[1])
+                        elif j[0] == 2:
                             coords = [int(n) for n in j[1].split()]
                             sx = (coords[0] - pos[0] + 15) * 50 - int(delta[0])
                             sy = HEIGHT - (coords[1] - pos[1] + 7) * 50 - int(delta[1])
                             blocks.update((sx, sy, broken, partlist, last), False)
-                        elif j[0] == 4:
+                        elif j[0] == 3:
                             chat += [[10000, j[1], i['name']]]
             for i in others[1].keys():
                 if i not in pids and others[1][i]:
@@ -340,16 +340,16 @@ while run:
                 Particle(particles, col, (px, py))
         partlist.clear()
         particles.update(tick, blocks, 2 * rt - lf + 1, False)
-        others[0].update(othermove, tick)
+        others[0].update(tick, delta, pos)
         othermove = [0, 0]
         bmove = [0, 0]
         if abs(blockdelta[0]) >= 1:
             bmove[0] += int(blockdelta[0])
-            actions += [(1, int(blockdelta[0]))]
+            actions += [(1, ' '.join((str(pos[0]), str(pos[1]), str(int(delta[0])), str(int(delta[1])))))]
             blockdelta[0] -= int(blockdelta[0])
         if abs(blockdelta[1]) >= 1:
             bmove[1] += int(blockdelta[1])
-            actions += [(2, int(blockdelta[1]))]
+            actions += [(1, ' '.join((str(pos[0]), str(pos[1]), str(int(delta[0])), str(int(delta[1])))))]
             blockdelta[1] -= int(blockdelta[1])
         blocks.update(False, bmove)
         for i in pg.event.get():
@@ -432,7 +432,7 @@ while run:
                     act = pause(scr)
                     if act is not None:
                         if act[0] == 1:
-                            actions += [(4, act[1])]
+                            actions += [(3, act[1])]
                             chat += [[10000, act[1], 'Я']]
                     paused = True
             elif i.type == pg.KEYUP:

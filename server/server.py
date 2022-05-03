@@ -3,7 +3,6 @@ from flask_restful import Api
 import actions_resource
 import inventories_resource
 from flask import jsonify as jf
-import os
 from random import randrange as rr
 from hashlib import sha256 as hsh
 from time import sleep
@@ -253,7 +252,7 @@ def removeblock(token, ax, ay):
         invslot = cr.execute(f'SELECT Slot From Inventories WHERE amount = 0 AND userid = {userid}').fetchone()
     cr.execute(f'''UPDATE Inventories SET amount = amount + 1, item = {item[0]}
                WHERE slot = {invslot[0]} AND userid = {userid}''')
-    cr.execute('INSERT INTO Actions(player, action, data) VALUES(?, ?, ?)', (userid, 3, str(x) + ' ' + str(y)))
+    cr.execute('INSERT INTO Actions(player, action, data) VALUES(?, ?, ?)', (userid, 2, str(x) + ' ' + str(y)))
     return jf(['ok'])
 
 
@@ -381,8 +380,7 @@ def committer():
         clean = (clean + 1) % 10
         if not clean:
             cr = db.cursor()
-            cr.execute('''DELETE FROM Actions WHERE (action = 1 OR action = 2)
-                AND datetime(tm) < datetime("now", "-10 second")''')
+            cr.execute('''DELETE FROM Actions WHERE action = 1 AND datetime(tm) < datetime("now", "-10 second")''')
         # print(destinations)
         db.commit()
 

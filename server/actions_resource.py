@@ -10,6 +10,8 @@ class ActionsResource(Resource):
         cr = db.cursor()
         args = parser.parse_args()
         user = get_user(args['token'])
+        if not user:
+            return jf(['err'])
         dat = cr.execute(f'SELECT id, x, y FROM Users WHERE nickname = "{user}"').fetchone()
         uid = dat[0]
         pos = [dat[1], dat[2]]
