@@ -238,6 +238,7 @@ crafts, pos = False, False
 paused = False
 chat = []
 chatfont = pg.font.Font(None, 30)
+coordfont = pg.font.Font(None, 50)
 while run:
     try:
         tick = clock.tick()
@@ -268,6 +269,8 @@ while run:
             particles.draw(scr)
             hotbar.draw(scr)
             others[0].draw(scr)
+            ctext = coordfont.render('Координаты: ' + str(pos[0]) + ' ' + str(pos[1]), True, (0, 0, 0))
+            scr.blit(ctext, (size[0] - ctext.get_rect()[2], 0))
             for j in range(len(chat)):
                 chat[j][0] -= tick
                 text = chatfont.render(chat[j][2] + ': ' + chat[j][1], True, (255, 255, 255))
