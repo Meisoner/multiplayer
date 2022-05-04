@@ -1,5 +1,4 @@
 import flask
-
 from utils import users, get_user, get_token, destinations, db
 from flask_restful import Api
 import actions_resource
@@ -26,7 +25,7 @@ api.add_resource(inventories_resource.InventoryResource, '/get_inv/<token>')
 lettera = ord('a')
 login_manager = LoginManager()
 login_manager.init_app(app)
-app.config['SECRET_KEY'] = 'secretkey:p'
+app.config['SECRET_KEY'] = 'ycioxtdu5v6543djt5ieceesetawerg'
 with open('crafts.txt') as file:
     crafts = dict()
     for i in file.read().split('\n'):
@@ -358,7 +357,7 @@ def icon():
     return flask.send_file('icon.ico')
 
 
-# Функй=ция для получения информации о работоспособности сервера
+# Функция для получения информации о работоспособности сервера
 @app.route('/game_status')
 def status():
     return '"Working"'
