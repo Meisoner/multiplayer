@@ -59,7 +59,7 @@ def pause(screen):
     fn.blit(cover, (0, 0))
     rn2 = True
     avx = screct[2] // 2
-    buttons = ['Продолжить', 'Чат']
+    buttons = ['Продолжить', 'Локальный чат']
     font = pg.font.Font(None, 30)
     screen.blit(fn, (0, 0))
     rects = []

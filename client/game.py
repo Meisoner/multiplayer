@@ -345,12 +345,12 @@ while run:
         bmove = [0, 0]
         if abs(blockdelta[0]) >= 1:
             bmove[0] += int(blockdelta[0])
-            actions += [(1, ' '.join((str(pos[0]), str(pos[1]), str(int(delta[0])), str(int(delta[1])))))]
             blockdelta[0] -= int(blockdelta[0])
         if abs(blockdelta[1]) >= 1:
             bmove[1] += int(blockdelta[1])
-            actions += [(1, ' '.join((str(pos[0]), str(pos[1]), str(int(delta[0])), str(int(delta[1])))))]
             blockdelta[1] -= int(blockdelta[1])
+        if left or right or falling or jumping:
+            actions += [(1, ' '.join((str(pos[0]), str(pos[1]), str(int(delta[0])), str(int(delta[1])))))]
         blocks.update(False, bmove)
         for i in pg.event.get():
             if i.type == pg.QUIT:
