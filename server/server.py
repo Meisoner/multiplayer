@@ -133,7 +133,6 @@ def register(psw, nickname):
 def login(psw, nickname):
     cr = db.cursor()
     hs = hsh((nickname + ':' + psw).encode()).hexdigest()
-    print(hs)
     user = list(cr.execute(f'SELECT * FROM Users WHERE hash = "{hs}" AND nickname = "{nickname}"'))
     token = get_token()
     if not user:
