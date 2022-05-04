@@ -1,3 +1,5 @@
+import flask
+
 from utils import users, get_user, get_token, destinations, db
 from flask_restful import Api
 import actions_resource
@@ -349,6 +351,12 @@ def removetoken(token):
     if token in users.keys():
         users[token] = '-'
     return jf(['ok'])
+
+
+# Любимый фавикон)
+@app.route('/favicon.ico')
+def icon():
+    return flask.send_file('icon.ico')
 
 
 # Функй=ция для получения информации о работоспособности сервера
