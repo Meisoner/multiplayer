@@ -20,7 +20,7 @@ actions = []
 
 
 # Экран входа в аккаунт
-def login(screen):
+def login(screen, err):
     global run, place
     keys = {getattr(pg, 'K_' + str(key)): str(key) for key in list(range(10)) + [chr(ord('a') + j) for j in range(26)]}
     keys[pg.K_PERIOD] = '.'
@@ -36,7 +36,6 @@ def login(screen):
     titlesize = title.get_size()[0]
     titlecenter = x // 2 - titlesize // 2
     inp = 0
-    err = ''
     while True:
         for i in pg.event.get():
             if i.type == pg.QUIT:
@@ -98,11 +97,12 @@ def noserver(screen):
 
 # Поток, обновляющий блоки
 def blockdataexchanger():
-    global blocks, pos, sss, token, delta, broken, placed, stop
+    global blocks, pos, sss, token, delta, broken, placed, place, stop
     while True:
         sleep(1)
         map = sss.get(SERVER + 'get_blocks/' + token).json()
         if map[0] == 'err':
+            place = 'login2'
             break
         new = pg.sprite.Group()
         for i in broken:
@@ -140,6 +140,9 @@ def playerdataexchanger():
                 pos = np
             actions = actions[la:]
             oth = sss.get(SERVER + f'players/{token}').json()
+            if oth:
+                if oth[0] == 'err':
+                    break
             pids = set()
             for i in oth:
                 pids.add(i['id'])
@@ -211,10 +214,6 @@ for i in range(5):
 hotlist[0].choose()
 hand = 0
 run = True
-bdats = threading.Thread(target=blockdataexchanger)
-bdats.setDaemon(True)
-pdats = threading.Thread(target=playerdataexchanger)
-pdats.setDaemon(True)
 blocks = pg.sprite.Group()
 delta = [0, 0]
 clock = pg.time.Clock()
@@ -247,8 +246,12 @@ while run:
             left, right, falling, jumping = False, False, False, 0
             paused = False
         scr.fill(BLUE)
-        if place == 'login':
-            token = login(scr)
+        if 'login' in place:
+            if place == 'login2':
+                err = 'Потеряно соединение с сервером.'
+            else:
+                err = ''
+            token = login(scr, err)
             if place == 'in_game':
                 map = sss.get(SERVER + 'get_blocks/' + token).json()
                 pos = sss.get(SERVER + 'get_pos/' + token).json()
@@ -257,6 +260,10 @@ while run:
                     Block(blocks, delta, textures[i[0]], pos, (i[1], i[2]), False, i[0])
                 for i in map[1]:
                     Block(blocks, delta, textures[i[0]], pos, (i[1], i[2]), True, i[0])
+                bdats = threading.Thread(target=blockdataexchanger)
+                bdats.setDaemon(True)
+                pdats = threading.Thread(target=playerdataexchanger)
+                pdats.setDaemon(True)
                 bdats.start()
                 pdats.start()
                 update_inv()
