@@ -5,7 +5,7 @@ from utils import HEIGHT
 
 # Класс стороннего игрока
 class Other(Player):
-    def __init__(self, group, playerpos, mypos, delta, nick, col, item):
+    def __init__(self, group, playerpos, mypos, delta, nick):
         self.ready = False
         super().__init__(group)
         new = pg.Surface((50, 75), pg.SRCALPHA)
@@ -37,3 +37,6 @@ class Other(Player):
         self.ready = False
         self.goal += [[int(i) for i in act.split()]]
         self.ready = True
+
+    def get_pos(self):
+        return self.coords

@@ -12,8 +12,8 @@ from others import Other
 from independent_screens import pause, inventoryview, crafting
 
 
-# SERVER = 'http://127.0.0.1:5000/'
-SERVER = 'http://185.240.103.30:80/'
+SERVER = 'http://127.0.0.1:5000/'
+# SERVER = 'http://185.240.103.30:80/'
 BLUE = (83, 75, 222)
 sss = rq.Session()
 actions = []
@@ -147,9 +147,9 @@ def playerdataexchanger():
             for i in oth:
                 pids.add(i['id'])
                 if i['id'] not in others[1].keys():
-                    others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
+                    others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'])
                 elif not others[1][i['id']]:
-                    others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'], False, False)
+                    others[1][i['id']] = Other(others[0], pos, i['pos'], delta, i['name'])
                 else:
                     for j in i['acts']:
                         if j[0] == 1:
@@ -160,7 +160,7 @@ def playerdataexchanger():
                             sy = HEIGHT - (coords[1] - pos[1] + 7) * 50 - int(delta[1])
                             blocks.update((sx, sy, broken, partlist, last), False)
                         elif j[0] == 3:
-                            chat += [[10000, j[1], i['name']]]
+                            chat += [[10000, i['name'] + ': ' + j[1]]]
             for i in others[1].keys():
                 if i not in pids and others[1][i]:
                     others[1][i].remove(others[0])
@@ -235,7 +235,8 @@ othermove = [0, 0]
 blockdelta = [0, 0]
 crafts, pos = False, False
 paused = False
-chat = []
+chat = [[10000, 'Нажмите E для того, чтобы открыть меню доступных крафтов'],
+        [10000, 'Нажмите I для того, чтобы открыть инвентарь']]
 chatfont = pg.font.Font(None, 30)
 coordfont = pg.font.Font(None, 50)
 while run:
@@ -280,10 +281,14 @@ while run:
             scr.blit(ctext, (size[0] - ctext.get_rect()[2], 0))
             for j in range(len(chat)):
                 chat[j][0] -= tick
-                text = chatfont.render(chat[j][2] + ': ' + chat[j][1], True, (255, 255, 255))
+                text = chatfont.render(chat[j][1], True, (255, 255, 255))
                 tlen = text.get_rect()[2]
                 im = pg.Surface((tlen + 20, 40))
-                im.set_alpha(150)
+                if chat[j][0] <= 1000:
+                    text.set_alpha(int(255 * chat[j][0] / 1000))
+                    im.set_alpha(int(150 * chat[j][0] / 1000))
+                else:
+                    im.set_alpha(150)
                 im.blit(text, (10, 10))
                 scr.blit(im, (0, 150 + 40 * j))
             nc = []
@@ -383,7 +388,8 @@ while run:
                         scrx, scry = i.pos
                         bx = (scrx + int(delta[0])) // 50 - 15 + pos[0]
                         by = (size[1] - scry - int(delta[1])) // 50 + pos[1] - 6
-                        if (bx, by) not in broken:
+                        othcoords = [tuple(others[1][i].get_pos()) for i in others[1].keys()]
+                        if (bx, by) not in broken and by >= 0 and (bx, by) not in othcoords:
                             block = inventory[hand][0]
                             Block(blocks, delta, textures[block], pos, (bx, by), False, block)
                             placed += [[block, bx, by]]
@@ -427,8 +433,8 @@ while run:
                                         break
                                     else:
                                         if inventory[k][1] < int(crafts[i][j]):
-                                             fl = False
-                                             break
+                                            fl = False
+                                            break
                             if fl:
                                 ncrafts[i] = crafts[i]
                         crafting(scr, textures, ncrafts, lambda x: sss.get(SERVER + 'craft/' + token + '/' + str(x)))
@@ -443,7 +449,7 @@ while run:
                     if act is not None:
                         if act[0] == 1:
                             actions += [(3, act[1])]
-                            chat += [[10000, act[1], 'Я']]
+                            chat += [[10000, 'Я: ' + act[1]]]
                     paused = True
             elif i.type == pg.KEYUP:
                 if i.key == pg.K_RIGHT or i.key == pg.K_d:
