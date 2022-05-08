@@ -269,6 +269,7 @@ while run:
                 pdats.start()
                 update_inv()
                 crafts = sss.get(SERVER + 'crafts').json()
+                paused = True
         elif place == 'noserver':
             noserver(scr)
         else:
