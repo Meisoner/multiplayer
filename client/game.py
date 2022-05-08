@@ -12,8 +12,8 @@ from others import Other
 from independent_screens import pause, inventoryview, crafting
 
 
-SERVER = 'http://127.0.0.1:5000/'
-# SERVER = 'http://185.240.103.30:80/'
+# SERVER = 'http://127.0.0.1:5000/'
+SERVER = 'http://185.240.103.30:80/'
 BLUE = (83, 75, 222)
 sss = rq.Session()
 actions = []

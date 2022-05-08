@@ -132,7 +132,6 @@ def inventoryview(screen, inv, textures):
                         chosen = 0
                     elif not chosen:
                         chosen = yc1 * 5 + xc1 + 1
-                        print(chosen - 1)
                     else:
                         inv[yc1 * 5 + xc1], inv[chosen - 1] = inv[chosen - 1], inv[yc1 * 5 + xc1]
                         stat += [(yc1 * 5 + xc1, chosen - 1)]
