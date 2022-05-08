@@ -136,7 +136,7 @@ def playerdataexchanger():
             la = len(actions)
             ps = tuple(pos)
             np = sss.post(SERVER + 'action', json={'actions': actions[:la], 'token': token}).json()
-            if tuple(np) != ps:
+            if tuple(np) != ps and type(np) == list:
                 pos = np
             actions = actions[la:]
             oth = sss.get(SERVER + f'players/{token}').json()
